@@ -10,31 +10,27 @@ import { Skeleton } from "@/components/ui/skeleton";
 const Aluno = () => {
   const navigate = useNavigate();
   const { user, profile } = useAuth();
-  const [enrolledClassrooms, setEnrolledClassrooms] = useState<any[]>([]);
+  const [classrooms, setClassrooms] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchEnrolled = async () => {
-      if (!user) {
-        setLoading(false);
-        return;
-      }
-      const { data: enrollments, error } = await supabase
-        .from("classroom_students")
-        .select(`classroom_id, classroom:classrooms(*)`)
-        .eq("user_id", user.id);
+    const fetchEnrollments = async () => {
+      if (!user) return;
 
-      if (error) {
-        console.error("Error fetching enrollments:", error);
-      } else if (enrollments) {
-        const classrooms = enrollments
-          .map((e: any) => e.classroom)
+      const { data, error } = await supabase
+        .from("classroom_students")
+        .select("classroom_id, classrooms(id, name, subject, description, color, icon)")
+        .eq("user_id", user.id);
+      console.log("data:", data, "error:", error);
+      if (data && data.length > 0) {
+        const rooms = data
+          .map((e: any) => e.classrooms)
           .filter(Boolean);
-        setEnrolledClassrooms(classrooms);
+        setClassrooms(rooms);
       }
       setLoading(false);
     };
-    fetchEnrolled();
+    fetchEnrollments();
   }, [user]);
 
   return (
