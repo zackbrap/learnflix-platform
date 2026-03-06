@@ -10,31 +10,27 @@ import { Skeleton } from "@/components/ui/skeleton";
 const Aluno = () => {
   const navigate = useNavigate();
   const { user, profile } = useAuth();
-  const [enrolledClassrooms, setEnrolledClassrooms] = useState<any[]>([]);
+  const [classrooms, setClassrooms] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchEnrolled = async () => {
-      if (!user) {
-        setLoading(false);
-        return;
-      }
-      const { data: enrollments, error } = await supabase
-        .from("classroom_students")
-        .select(`classroom_id, classroom:classrooms(*)`)
-        .eq("user_id", user.id);
+    const fetchEnrollments = async () => {
+      if (!user) return;
 
-      if (error) {
-        console.error("Error fetching enrollments:", error);
-      } else if (enrollments) {
-        const classrooms = enrollments
-          .map((e: any) => e.classroom)
+      const { data, error } = await supabase
+        .from("classroom_students")
+        .select("classroom_id, classrooms(id, name, subject, description, color, icon)")
+        .eq("user_id", user.id);
+      console.log("data:", data, "error:", error);
+      if (data && data.length > 0) {
+        const rooms = data
+          .map((e: any) => e.classrooms)
           .filter(Boolean);
-        setEnrolledClassrooms(classrooms);
+        setClassrooms(rooms);
       }
       setLoading(false);
     };
-    fetchEnrolled();
+    fetchEnrollments();
   }, [user]);
 
   return (
@@ -84,41 +80,34 @@ const Aluno = () => {
                 <Skeleton key={i} className="h-[200px] rounded-lg" />
               ))}
             </div>
-          ) : enrolledClassrooms.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {enrolledClassrooms.map((classroom: any) => (
+          ) : classrooms.length === 0 ? (
+            <div className="flex flex-col items-center justify-center rounded-lg border border-border bg-card py-16">
+              <Inbox className="h-12 w-12 text-muted-foreground mb-4" />
+              <p className="text-muted-foreground">Você ainda não participa de nenhuma turma</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+              {classrooms.map((c: any) => (
                 <div
-                  key={classroom.id}
-                  onClick={() => navigate(`/turma/${classroom.id}`)}
-                  className="group cursor-pointer rounded-lg border transition-transform hover:scale-[1.02]"
-                  style={{ background: "#1a1a1a", borderColor: "#2a2a2a" }}
+                  key={c.id}
+                  onClick={() => navigate(`/turma/${c.id}`)}
+                  className="cursor-pointer rounded-lg overflow-hidden transition-transform hover:scale-[1.03]"
+                  style={{ background: "#1a1a1a", border: "1px solid #2a2a2a" }}
                 >
-                  <div className="h-1 rounded-t-lg" style={{ background: classroom.color }} />
-                  <div className="p-5">
-                    <div
-                      className="flex h-10 w-10 items-center justify-center rounded-full text-lg mb-3"
-                      style={{ background: classroom.color + "20" }}
-                    >
-                      {classroom.icon}
-                    </div>
-                    <span
-                      className="inline-block rounded-full px-2.5 py-0.5 text-[0.7rem] font-medium mb-2"
-                      style={{ background: classroom.color + "20", color: classroom.color }}
-                    >
-                      {classroom.subject}
+                  <div className="h-1.5 w-full" style={{ background: c.color || "#e50914" }} />
+                  <div className="p-4">
+                    <div className="text-2xl mb-2">{c.icon || "📚"}</div>
+                    <span className="text-xs font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-sm mb-2 inline-block"
+                      style={{ background: (c.color || "#e50914") + "22", color: c.color || "#e50914" }}>
+                      {c.subject}
                     </span>
-                    <h3 className="text-[0.95rem] font-bold text-foreground mb-1">{classroom.name}</h3>
-                    <p className="text-xs text-muted-foreground line-clamp-2 min-h-[2rem]">
-                      {classroom.description || "Sem descrição"}
+                    <p className="font-bold text-foreground text-sm mt-1">{c.name}</p>
+                    <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                      {c.description || "Sem descrição"}
                     </p>
                   </div>
                 </div>
               ))}
-            </div>
-          ) : (
-            <div className="flex flex-col items-center justify-center rounded-lg border border-border bg-card py-16">
-              <Inbox className="h-12 w-12 text-muted-foreground mb-4" />
-              <p className="text-muted-foreground">Você ainda não participa de nenhuma turma</p>
             </div>
           )}
         </div>
