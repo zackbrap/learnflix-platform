@@ -19,7 +19,10 @@ export function RoleRoute({ children, role }: { children: React.ReactNode; role:
       <p className="text-muted-foreground">Carregando...</p>
     </div>
   );
-  if (!profile || profile.role !== role) return <Navigate to="/auth" replace />;
+  if (!profile) return <Navigate to="/auth" replace />;
+  if (profile.role !== role) {
+    return <Navigate to={profile.role === "teacher" ? "/dashboard" : "/aluno"} replace />;
+  }
   return <>{children}</>;
 }
 

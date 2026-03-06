@@ -21,14 +21,14 @@ const Aluno = () => {
       }
       const { data: enrollments, error } = await supabase
         .from("classroom_students")
-        .select("classroom_id, classrooms(*)")
+        .select(`classroom_id, classroom:classrooms(*)`)
         .eq("user_id", user.id);
 
       if (error) {
         console.error("Error fetching enrollments:", error);
       } else if (enrollments) {
         const classrooms = enrollments
-          .map((e: any) => e.classrooms)
+          .map((e: any) => e.classroom)
           .filter(Boolean);
         setEnrolledClassrooms(classrooms);
       }
