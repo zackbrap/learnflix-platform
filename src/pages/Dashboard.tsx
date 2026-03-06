@@ -1,29 +1,85 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import AppSidebar from "@/components/AppSidebar";
+import ClassroomCard from "@/components/ClassroomCard";
+import CreateClassDialog from "@/components/CreateClassDialog";
 import { Users, BookOpen, FileText, Eye, Inbox } from "lucide-react";
+import { toast } from "sonner";
+
+interface ClassroomWithCount {
+  id: string;
+  name: string;
+  subject: string;
+  description: string;
+  color: string;
+  icon: string;
+  invite_code: string;
+  invite_active: boolean;
+  student_count?: number;
+}
 
 const Dashboard = () => {
-  const [name, setName] = useState("");
+  const { user, profile } = useAuth();
+  const [classrooms, setClassrooms] = useState<ClassroomWithCount[]>([]);
+  const [totalStudents, setTotalStudents] = useState(0);
+  const [loadingData, setLoadingData] = useState(true);
+
+  const fetchClassrooms = useCallback(async () => {
+    if (!user) return;
+    setLoadingData(true);
+
+    const { data: rooms } = await supabase
+      .from("classrooms")
+      .select("*")
+      .eq("teacher_id", user.id)
+      .order("created_at", { ascending: false });
+
+    if (!rooms || rooms.length === 0) {
+      setClassrooms([]);
+      setTotalStudents(0);
+      setLoadingData(false);
+      return;
+    }
+
+    // Fetch student counts per classroom
+    const roomIds = rooms.map((r) => r.id);
+    const { data: students } = await supabase
+      .from("classroom_students")
+      .select("classroom_id")
+      .in("classroom_id", roomIds);
+
+    const countMap: Record<string, number> = {};
+    let total = 0;
+    (students ?? []).forEach((s) => {
+      countMap[s.classroom_id] = (countMap[s.classroom_id] || 0) + 1;
+      total++;
+    });
+
+    setClassrooms(
+      rooms.map((r) => ({ ...r, student_count: countMap[r.id] || 0 }))
+    );
+    setTotalStudents(total);
+    setLoadingData(false);
+  }, [user]);
 
   useEffect(() => {
-    const fetchName = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        const { data } = await supabase
-          .from("profiles")
-          .select("full_name")
-          .eq("id", session.user.id)
-          .single();
-        if (data) setName(data.full_name);
-      }
-    };
-    fetchName();
-  }, []);
+    fetchClassrooms();
+  }, [fetchClassrooms]);
+
+  const handleDelete = async (id: string) => {
+    const { error } = await supabase.from("classrooms").delete().eq("id", id);
+    if (error) {
+      toast.error("Erro ao excluir turma");
+      return;
+    }
+    toast.success("Turma excluída");
+    fetchClassrooms();
+  };
 
   const stats = [
-    { label: "Turmas", value: "0", icon: Users },
-    { label: "Alunos", value: "0", icon: BookOpen },
+    { label: "Turmas", value: String(classrooms.length), icon: Users },
+    { label: "Alunos", value: String(totalStudents), icon: BookOpen },
     { label: "Conteúdos", value: "0", icon: FileText },
     { label: "Acessos hoje", value: "0", icon: Eye },
   ];
@@ -51,7 +107,7 @@ const Dashboard = () => {
               Painel do Professor
             </span>
             <h1 className="font-display text-5xl text-foreground mt-2">
-              Olá, {name || "Professor"}!
+              Olá, {profile?.full_name || "Professor"}!
             </h1>
             <p className="mt-2 text-muted-foreground max-w-lg">
               Gerencie suas turmas e conteúdos em um só lugar.
@@ -79,11 +135,27 @@ const Dashboard = () => {
 
         {/* Suas Turmas */}
         <div className="px-8 pb-10">
-          <h2 className="font-display text-2xl text-foreground mb-4">Suas Turmas</h2>
-          <div className="flex flex-col items-center justify-center rounded-lg border border-border bg-card py-16">
-            <Inbox className="h-12 w-12 text-muted-foreground mb-4" />
-            <p className="text-muted-foreground">Nenhuma turma criada ainda</p>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-display text-2xl text-foreground">Suas Turmas</h2>
+            <CreateClassDialog onCreated={fetchClassrooms} />
           </div>
+
+          {loadingData ? (
+            <div className="flex items-center justify-center rounded-lg border border-border bg-card py-16">
+              <p className="text-muted-foreground">Carregando...</p>
+            </div>
+          ) : classrooms.length === 0 ? (
+            <div className="flex flex-col items-center justify-center rounded-lg border border-border bg-card py-16">
+              <Inbox className="h-12 w-12 text-muted-foreground mb-4" />
+              <p className="text-muted-foreground">Nenhuma turma criada ainda</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {classrooms.map((c) => (
+                <ClassroomCard key={c.id} classroom={c} onDelete={handleDelete} />
+              ))}
+            </div>
+          )}
         </div>
       </main>
     </div>
