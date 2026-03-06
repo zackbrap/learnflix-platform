@@ -57,7 +57,7 @@ const ClassroomCard = ({ classroom, onDelete }: ClassroomCardProps) => {
           </div>
           <div className="flex items-center gap-1">
             <button
-              onClick={copyInviteCode}
+              onClick={copyInviteLink}
               className="rounded-md p-1.5 text-muted-foreground transition-colors hover:text-foreground hover:bg-foreground/10"
               title="Copiar código de convite"
             >

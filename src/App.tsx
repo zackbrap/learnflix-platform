@@ -41,6 +41,7 @@ const App = () => (
                 <Dashboard />
               </ProtectedRoute>
             } />
+            <Route path="/convite/:code" element={<JoinClass />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
