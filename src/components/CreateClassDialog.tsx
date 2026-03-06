@@ -42,7 +42,9 @@ const CreateClassDialog = ({ onCreated }: CreateClassDialogProps) => {
     if (!user) return;
     setLoading(true);
 
-    const { error } = await supabase.from("classrooms").insert({
+    console.log("Creating classroom, user.id:", user.id);
+
+    const { data, error } = await supabase.from("classrooms").insert({
       name,
       subject,
       description,
@@ -53,8 +55,11 @@ const CreateClassDialog = ({ onCreated }: CreateClassDialogProps) => {
       invite_active: true,
     });
 
+    console.log("Supabase insert response:", { data, error });
+
     setLoading(false);
     if (error) {
+      console.error("Error creating classroom:", error);
       toast.error("Erro ao criar turma");
       return;
     }
@@ -82,7 +87,7 @@ const CreateClassDialog = ({ onCreated }: CreateClassDialogProps) => {
       </DialogTrigger>
       <DialogContent className="border-border bg-card sm:max-w-md" style={{ background: "#1a1a1a" }}>
         <DialogHeader>
-          <DialogTitle className="font-display text-xl text-foreground">Criar nova turma</DialogTitle>
+          <DialogTitle className="font-display text-xl text-primary">Criar nova turma</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 mt-2">
           <div>
