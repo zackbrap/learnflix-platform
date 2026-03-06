@@ -24,8 +24,8 @@ const ClassroomCard = ({ classroom, onDelete }: ClassroomCardProps) => {
 
   const copyInviteLink = (e: React.MouseEvent) => {
     e.stopPropagation();
-    const url = window.location.origin + "/convite/" + classroom.invite_code;
-    navigator.clipboard.writeText(url);
+    const inviteUrl = `https://learnflixbrasil.lovable.app/convite/${classroom.invite_code}`;
+    navigator.clipboard.writeText(inviteUrl);
     toast.success("Link de convite copiado!");
   };
 
