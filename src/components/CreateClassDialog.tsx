@@ -42,7 +42,9 @@ const CreateClassDialog = ({ onCreated }: CreateClassDialogProps) => {
     if (!user) return;
     setLoading(true);
 
-    const { error } = await supabase.from("classrooms").insert({
+    console.log("Creating classroom, user.id:", user.id);
+
+    const { data, error } = await supabase.from("classrooms").insert({
       name,
       subject,
       description,
