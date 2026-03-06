@@ -55,8 +55,11 @@ const CreateClassDialog = ({ onCreated }: CreateClassDialogProps) => {
       invite_active: true,
     });
 
+    console.log("Supabase insert response:", { data, error });
+
     setLoading(false);
     if (error) {
+      console.error("Error creating classroom:", error);
       toast.error("Erro ao criar turma");
       return;
     }
