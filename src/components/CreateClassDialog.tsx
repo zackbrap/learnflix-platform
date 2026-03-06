@@ -87,7 +87,7 @@ const CreateClassDialog = ({ onCreated }: CreateClassDialogProps) => {
       </DialogTrigger>
       <DialogContent className="border-border bg-card sm:max-w-md" style={{ background: "#1a1a1a" }}>
         <DialogHeader>
-          <DialogTitle className="font-display text-xl text-foreground">Criar nova turma</DialogTitle>
+          <DialogTitle className="font-display text-xl text-primary">Criar nova turma</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 mt-2">
           <div>
