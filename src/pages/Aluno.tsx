@@ -21,7 +21,7 @@ const Aluno = () => {
       }
       const { data: enrollments, error } = await supabase
         .from("classroom_students")
-        .select("classroom_id, classrooms(*)")
+        .select(`classroom_id, classroom:classrooms(*)`)
         .eq("user_id", user.id);
 
       if (error) {
