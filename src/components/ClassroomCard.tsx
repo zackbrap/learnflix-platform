@@ -22,10 +22,11 @@ interface ClassroomCardProps {
 const ClassroomCard = ({ classroom, onDelete }: ClassroomCardProps) => {
   const navigate = useNavigate();
 
-  const copyInviteCode = (e: React.MouseEvent) => {
+  const copyInviteLink = (e: React.MouseEvent) => {
     e.stopPropagation();
-    navigator.clipboard.writeText(classroom.invite_code);
-    toast.success("Código copiado: " + classroom.invite_code);
+    const url = window.location.origin + "/convite/" + classroom.invite_code;
+    navigator.clipboard.writeText(url);
+    toast.success("Link de convite copiado!");
   };
 
   const handleDelete = (e: React.MouseEvent) => {
@@ -56,7 +57,7 @@ const ClassroomCard = ({ classroom, onDelete }: ClassroomCardProps) => {
           </div>
           <div className="flex items-center gap-1">
             <button
-              onClick={copyInviteCode}
+              onClick={copyInviteLink}
               className="rounded-md p-1.5 text-muted-foreground transition-colors hover:text-foreground hover:bg-foreground/10"
               title="Copiar código de convite"
             >
