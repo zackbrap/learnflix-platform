@@ -3,7 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "@/contexts/AuthContext";
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { ProtectedRoute, RoleRoute, AuthRoute } from "@/components/ProtectedRoute";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
@@ -12,6 +12,17 @@ import JoinClass from "./pages/JoinClass";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
+
+function RoleBasedHome() {
+  const { profile, loading } = useAuth();
+  if (loading) return (
+    <div className="flex min-h-screen items-center justify-center bg-background">
+      <p className="text-muted-foreground">Carregando...</p>
+    </div>
+  );
+  if (profile?.role === "student") return <Aluno />;
+  return <Dashboard />;
+}
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -38,7 +49,7 @@ const App = () => (
             } />
             <Route path="/" element={
               <ProtectedRoute>
-                <Dashboard />
+                <RoleBasedHome />
               </ProtectedRoute>
             } />
             <Route path="/convite/:code" element={<JoinClass />} />
