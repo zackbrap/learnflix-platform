@@ -28,7 +28,7 @@ const Aluno = () => {
         console.error("Error fetching enrollments:", error);
       } else if (enrollments) {
         const classrooms = enrollments
-          .map((e: any) => e.classrooms)
+          .map((e: any) => e.classroom)
           .filter(Boolean);
         setEnrolledClassrooms(classrooms);
       }
