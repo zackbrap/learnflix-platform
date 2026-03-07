@@ -53,6 +53,11 @@ const App = () => (
                 <RoleBasedHome />
               </ProtectedRoute>
             } />
+            <Route path="/turma/:id" element={
+              <ProtectedRoute>
+                <ClassroomPage />
+              </ProtectedRoute>
+            } />
             <Route path="/convite/:code" element={<JoinClass />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
