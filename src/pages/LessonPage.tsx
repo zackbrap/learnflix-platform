@@ -16,6 +16,7 @@ import FlashcardEditor from "@/components/classroom/FlashcardEditor";
 import FlashcardViewer from "@/components/classroom/FlashcardViewer";
 import QuestionEditor from "@/components/classroom/QuestionEditor";
 import QuestionViewer from "@/components/classroom/QuestionViewer";
+import MindMapViewer from "@/components/classroom/MindMapViewer";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -58,6 +59,7 @@ const LessonPage = () => {
   const [questionEditorOpen, setQuestionEditorOpen] = useState(false);
   const [questionEditorType, setQuestionEditorType] = useState<"question" | "simulado" | "revisao">("question");
   const [activeQuestion, setActiveQuestion] = useState<Tables<"contents"> | null>(null);
+  const [activeMindMap, setActiveMindMap] = useState<Tables<"contents"> | null>(null);
   // Add content form state
   const [step, setStep] = useState<1 | 2>(1);
   const [selectedType, setSelectedType] = useState("");
@@ -267,6 +269,11 @@ const LessonPage = () => {
       return;
     }
 
+    if (item.type === "mindmap") {
+      setActiveMindMap(item);
+      return;
+    }
+
     setViewContent(item);
   };
 
@@ -304,7 +311,7 @@ const LessonPage = () => {
 
   const needsFileUpload = selectedType === "pdf" || selectedType === "infographic";
   const needsUrl = selectedType === "video" || selectedType === "podcast";
-  const needsTextarea = ["mindmap"].includes(selectedType);
+  const needsTextarea = false;
 
   return (
     <div className="flex min-h-screen" style={{ background: "#141414" }}>
@@ -336,6 +343,12 @@ const LessonPage = () => {
             <FlashcardViewer
               content={activeFlashcard}
               onBack={() => setActiveFlashcard(null)}
+            />
+          ) : activeMindMap ? (
+            <MindMapViewer
+              content={activeMindMap}
+              onBack={() => setActiveMindMap(null)}
+              isTeacher={isTeacher}
             />
           ) : activeQuestion ? (
             <QuestionViewer
@@ -453,7 +466,7 @@ const LessonPage = () => {
               {contentTypes.map((ct) => (
                 <button
                   key={ct.type}
-                  onClick={() => {
+                  onClick={async () => {
                     if (ct.type === "flashcard") {
                       setSelectedType("flashcard");
                       setAddOpen(false);
@@ -463,6 +476,24 @@ const LessonPage = () => {
                       setQuestionEditorType(ct.type as "question" | "simulado" | "revisao");
                       setAddOpen(false);
                       setQuestionEditorOpen(true);
+                    } else if (ct.type === "mindmap") {
+                      // Create empty mindmap and open editor
+                      if (!lessonId) return;
+                      const { data: newContent, error } = await supabase.from("contents").insert({
+                        lesson_id: lessonId,
+                        type: "mindmap",
+                        title: "Novo Mapa Mental",
+                        data: { nodes: [{ id: 'root', type: 'root', position: { x: 400, y: 250 }, data: { label: 'Tema Central' } }], edges: [] } as any,
+                        order_index: contents.length,
+                      }).select().single();
+                      if (error) {
+                        toast({ title: "Erro ao criar mapa mental", description: error.message, variant: "destructive" });
+                        return;
+                      }
+                      setAddOpen(false);
+                      resetForm();
+                      await fetchContents();
+                      if (newContent) setActiveMindMap(newContent);
                     } else {
                       setSelectedType(ct.type);
                       setStep(2);
@@ -565,11 +596,6 @@ const LessonPage = () => {
           )}
 
 
-          {["mindmap"].includes(viewContent?.type || "") && (
-            <div className="rounded-lg border px-4 py-8 text-center" style={{ background: "#141414", borderColor: "#2a2a2a" }}>
-              <p className="text-sm text-muted-foreground">Em breve</p>
-            </div>
-          )}
         </DialogContent>
       </Dialog>
 
