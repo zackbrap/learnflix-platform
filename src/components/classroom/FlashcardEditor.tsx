@@ -113,6 +113,8 @@ const FlashcardEditor = ({
               className="border-border/60 bg-background text-sm"
             />
           </div>
+
+          {cards.length === 0 ? (
             <div
               className="rounded-lg border px-4 py-8 text-center"
               style={{ background: "#141414", borderColor: "#2a2a2a" }}
@@ -157,7 +159,7 @@ const FlashcardEditor = ({
                 </div>
               </div>
             ))
-          )}
+          )
 
           {/* Import section */}
           {importOpen && (
