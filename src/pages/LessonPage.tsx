@@ -28,10 +28,6 @@ const contentTypes = [
 const typeLabels: Record<string, { icon: string; label: string }> = {};
 contentTypes.forEach((ct) => { typeLabels[ct.type] = { icon: ct.icon, label: ct.label }; });
 
-function extractYouTubeId(url: string) {
-  const m = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/))([a-zA-Z0-9_-]{11})/);
-  return m ? m[1] : null;
-}
 
 const LessonPage = () => {
   const { id, lessonId } = useParams<{ id: string; lessonId: string }>();
