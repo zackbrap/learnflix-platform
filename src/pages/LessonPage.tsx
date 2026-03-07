@@ -287,7 +287,7 @@ const LessonPage = () => {
 
   const needsFileUpload = selectedType === "pdf" || selectedType === "infographic";
   const needsUrl = selectedType === "video" || selectedType === "podcast";
-  const needsTextarea = ["mindmap", "question", "simulado"].includes(selectedType);
+  const needsTextarea = ["mindmap"].includes(selectedType);
 
   return (
     <div className="flex min-h-screen" style={{ background: "#141414" }}>
