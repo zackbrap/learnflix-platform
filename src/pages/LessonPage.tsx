@@ -28,7 +28,8 @@ const contentTypes = [
   { type: "infographic", icon: "🖼️", label: "Infográfico" },
   { type: "flashcard", icon: "🃏", label: "Flashcard" },
   { type: "question", icon: "📝", label: "Questões Interativas" },
-  { type: "simulado", icon: "📋", label: "Revisões" },
+  { type: "revisao", icon: "📖", label: "Revisões" },
+  { type: "simulado", icon: "📋", label: "Simulados" },
 ];
 
 const typeLabels: Record<string, { icon: string; label: string }> = {};
