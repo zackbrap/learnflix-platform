@@ -60,6 +60,11 @@ const App = () => (
                 <ClassroomPage />
               </ProtectedRoute>
             } />
+            <Route path="/turma/:id/aula/:lessonId" element={
+              <ProtectedRoute>
+                <LessonPage />
+              </ProtectedRoute>
+            } />
             <Route path="/estatisticas" element={<ProtectedRoute><ComingSoon /></ProtectedRoute>} />
             <Route path="/social" element={<ProtectedRoute><ComingSoon /></ProtectedRoute>} />
             <Route path="/config" element={<ProtectedRoute><ComingSoon /></ProtectedRoute>} />
