@@ -15,6 +15,13 @@ const PdfViewer = ({ content, onBack }: PdfViewerProps) => {
   const { user } = useAuth();
   const [note, setNote] = useState("");
   const [saving, setSaving] = useState(false);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+
+  const handleFullscreen = () => {
+    if (iframeRef.current) {
+      iframeRef.current.requestFullscreen?.();
+    }
+  };
 
   useEffect(() => {
     if (!user?.id || !content.id) return;
