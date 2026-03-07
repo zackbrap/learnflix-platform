@@ -265,7 +265,7 @@ const LessonPage = () => {
                         key={item.id}
                         onClick={() => {
                           if (item.type === "pdf" && item.url) {
-                            window.open(item.url, '_blank');
+                            window.location.href = item.url;
                           } else {
                             setViewContent(item);
                           }
