@@ -1,10 +1,14 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import AppSidebar from "@/components/AppSidebar";
-import { ArrowLeft } from "lucide-react";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { ArrowLeft, Plus } from "lucide-react";
+import LessonCard from "@/components/classroom/LessonCard";
+import CreateLessonDialog from "@/components/classroom/CreateLessonDialog";
+import StudentsList from "@/components/classroom/StudentsList";
+import { toast } from "@/hooks/use-toast";
+import type { Tables } from "@/integrations/supabase/types";
 
 const contentSections = [
   { icon: "📄", title: "PDFs" },
@@ -17,60 +21,68 @@ const contentSections = [
   { icon: "📋", title: "Simulados" },
 ];
 
-interface Student {
-  id: string;
-  student_name: string;
-  joined_at: string;
-  user_id: string;
-}
+type TeacherTab = "aulas" | "conteudos" | "alunos";
 
 const ClassroomPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { profile } = useAuth();
-  const [classroom, setClassroom] = useState<any>(null);
+  const [classroom, setClassroom] = useState<Tables<"classrooms"> | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
-  const [activeTab, setActiveTab] = useState<"conteudos" | "alunos">("conteudos");
-  const [students, setStudents] = useState<Student[]>([]);
-  const [studentsLoading, setStudentsLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState<TeacherTab>("aulas");
+  const [lessons, setLessons] = useState<Tables<"lessons">[]>([]);
+  const [lessonsLoading, setLessonsLoading] = useState(false);
+  const [createOpen, setCreateOpen] = useState(false);
 
   const isTeacher = profile?.role === "teacher";
   const variant = isTeacher ? "teacher" : "student";
   const backPath = isTeacher ? "/dashboard" : "/aluno";
 
   useEffect(() => {
-    const fetch = async () => {
+    const fetchClassroom = async () => {
       if (!id) return;
       const { data, error } = await supabase
         .from("classrooms")
         .select("*")
         .eq("id", id)
         .maybeSingle();
-      if (error || !data) {
-        setNotFound(true);
-      } else {
-        setClassroom(data);
-      }
+      if (error || !data) setNotFound(true);
+      else setClassroom(data);
       setLoading(false);
     };
-    fetch();
+    fetchClassroom();
+  }, [id]);
+
+  const fetchLessons = useCallback(async () => {
+    if (!id) return;
+    setLessonsLoading(true);
+    const { data } = await supabase
+      .from("lessons")
+      .select("*")
+      .eq("classroom_id", id)
+      .order("lesson_date", { ascending: true });
+    setLessons(data ?? []);
+    setLessonsLoading(false);
   }, [id]);
 
   useEffect(() => {
-    if (!isTeacher || activeTab !== "alunos" || !id) return;
-    const fetchStudents = async () => {
-      setStudentsLoading(true);
-      const { data } = await supabase
-        .from("classroom_students")
-        .select("id, student_name, joined_at, user_id")
-        .eq("classroom_id", id)
-        .order("joined_at", { ascending: true });
-      setStudents(data ?? []);
-      setStudentsLoading(false);
-    };
-    fetchStudents();
-  }, [isTeacher, activeTab, id]);
+    if (!id) return;
+    // Fetch lessons for both teacher (aulas tab) and student view
+    if (isTeacher ? activeTab === "aulas" : true) {
+      fetchLessons();
+    }
+  }, [id, isTeacher, activeTab, fetchLessons]);
+
+  const handleDeleteLesson = async (lessonId: string) => {
+    const { error } = await supabase.from("lessons").delete().eq("id", lessonId);
+    if (error) {
+      toast({ title: "Erro ao excluir aula", description: error.message, variant: "destructive" });
+      return;
+    }
+    toast({ title: "Aula excluída" });
+    fetchLessons();
+  };
 
   if (loading) {
     return (
@@ -83,7 +95,7 @@ const ClassroomPage = () => {
     );
   }
 
-  if (notFound) {
+  if (notFound || !classroom) {
     return (
       <div className="flex min-h-screen" style={{ background: "#141414" }}>
         <AppSidebar variant={variant} />
@@ -96,19 +108,16 @@ const ClassroomPage = () => {
 
   const color = classroom.color || "#e50914";
 
-  const getInitials = (name: string) =>
-    name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
-
-  const formatDate = (dateStr: string) => {
-    const d = new Date(dateStr);
-    return d.toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" });
-  };
+  const teacherTabs: { key: TeacherTab; label: string }[] = [
+    { key: "aulas", label: "Aulas" },
+    { key: "conteudos", label: "Conteúdos" },
+    { key: "alunos", label: "Alunos" },
+  ];
 
   return (
     <div className="flex min-h-screen" style={{ background: "#141414" }}>
       <AppSidebar variant={variant} />
       <main className="flex-1 overflow-y-auto">
-        {/* Color bar */}
         <div className="h-1 w-full" style={{ background: color }} />
 
         <div className="p-6 md:p-8 max-w-5xl mx-auto space-y-8">
@@ -136,19 +145,14 @@ const ClassroomPage = () => {
               {classroom.subject}
             </span>
             {classroom.description && (
-              <p className="text-sm text-muted-foreground max-w-xl">
-                {classroom.description}
-              </p>
+              <p className="text-sm text-muted-foreground max-w-xl">{classroom.description}</p>
             )}
           </div>
 
-          {/* Tabs (teacher only) */}
+          {/* TEACHER: Tabs */}
           {isTeacher && (
             <div className="flex gap-6 border-b border-border/60">
-              {[
-                { key: "conteudos" as const, label: "Conteúdos" },
-                { key: "alunos" as const, label: "Alunos" },
-              ].map((tab) => (
+              {teacherTabs.map((tab) => (
                 <button
                   key={tab.key}
                   onClick={() => setActiveTab(tab.key)}
@@ -165,8 +169,53 @@ const ClassroomPage = () => {
             </div>
           )}
 
-          {/* Content */}
-          {activeTab === "conteudos" || !isTeacher ? (
+          {/* TEACHER TAB CONTENT */}
+          {isTeacher && activeTab === "aulas" && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-sm font-semibold text-foreground">Aulas</h2>
+                <button
+                  onClick={() => setCreateOpen(true)}
+                  className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:opacity-90"
+                  style={{ background: "#e50914" }}
+                >
+                  <Plus className="h-3.5 w-3.5" /> Nova Aula
+                </button>
+              </div>
+              {lessonsLoading ? (
+                <p className="text-muted-foreground text-sm">Carregando aulas...</p>
+              ) : lessons.length === 0 ? (
+                <div
+                  className="rounded-lg border px-4 py-8 text-center"
+                  style={{ background: "#1a1a1a", borderColor: "#2a2a2a" }}
+                >
+                  <p className="text-xs text-muted-foreground">Nenhuma aula criada ainda</p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {lessons.map((lesson) => (
+                    <LessonCard
+                      key={lesson.id}
+                      lesson={lesson}
+                      color={color}
+                      showDelete
+                      onClick={() => navigate(`/turma/${id}/aula/${lesson.id}`)}
+                      onDelete={() => handleDeleteLesson(lesson.id)}
+                    />
+                  ))}
+                </div>
+              )}
+              <CreateLessonDialog
+                open={createOpen}
+                onOpenChange={setCreateOpen}
+                classroomId={id!}
+                nextOrder={lessons.length + 1}
+                onCreated={fetchLessons}
+              />
+            </div>
+          )}
+
+          {isTeacher && activeTab === "conteudos" && (
             <div className="space-y-6">
               {contentSections.map((section) => (
                 <div key={section.title}>
@@ -177,44 +226,41 @@ const ClassroomPage = () => {
                     className="rounded-lg border border-border/60 px-4 py-6 text-center"
                     style={{ background: "#1a1a1a" }}
                   >
-                    <p className="text-xs text-muted-foreground">
-                      Nenhum conteúdo disponível ainda
-                    </p>
+                    <p className="text-xs text-muted-foreground">Nenhum conteúdo disponível ainda</p>
                   </div>
                 </div>
               ))}
             </div>
-          ) : (
+          )}
+
+          {isTeacher && activeTab === "alunos" && (
+            <StudentsList classroomId={id!} />
+          )}
+
+          {/* STUDENT VIEW: Lessons list (no tabs) */}
+          {!isTeacher && (
             <div className="space-y-4">
-              {studentsLoading ? (
-                <p className="text-muted-foreground text-sm">Carregando alunos...</p>
-              ) : students.length === 0 ? (
-                <p className="text-muted-foreground text-sm">Nenhum aluno inscrito ainda</p>
+              <h2 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Aulas</h2>
+              {lessonsLoading ? (
+                <p className="text-muted-foreground text-sm">Carregando aulas...</p>
+              ) : lessons.length === 0 ? (
+                <div
+                  className="rounded-lg border px-4 py-8 text-center"
+                  style={{ background: "#1a1a1a", borderColor: "#2a2a2a" }}
+                >
+                  <p className="text-xs text-muted-foreground">Nenhuma aula disponível ainda</p>
+                </div>
               ) : (
-                <>
-                  <p className="text-xs text-muted-foreground font-medium">
-                    {students.length} aluno{students.length !== 1 ? "s" : ""} matriculado{students.length !== 1 ? "s" : ""}
-                  </p>
-                  <div className="space-y-2">
-                    {students.map((s) => (
-                      <div
-                        key={s.id}
-                        className="flex items-center gap-3 rounded-lg border border-border/60 px-4 py-3"
-                        style={{ background: "#1a1a1a" }}
-                      >
-                        <Avatar className="h-9 w-9">
-                          <AvatarFallback style={{ background: "#2a2a2a" }} className="text-xs font-bold text-foreground">
-                            {getInitials(s.student_name)}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-foreground truncate">{s.student_name}</p>
-                          <p className="text-xs text-muted-foreground">Entrou em {formatDate(s.joined_at)}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </>
+                <div className="space-y-2">
+                  {lessons.map((lesson) => (
+                    <LessonCard
+                      key={lesson.id}
+                      lesson={lesson}
+                      color={color}
+                      onClick={() => navigate(`/turma/${id}/aula/${lesson.id}`)}
+                    />
+                  ))}
+                </div>
               )}
             </div>
           )}
