@@ -264,7 +264,7 @@ const LessonPage = () => {
                     {items.map((item) => (
                       <div
                         key={item.id}
-                        onClick={() => setViewContent(item)}
+                        onClick={() => item.type === "video" ? setActiveVideo(item) : setViewContent(item)}
                         className="flex items-center gap-3 rounded-lg border px-4 py-3 cursor-pointer transition-colors hover:border-muted-foreground/30"
                         style={{ background: "#1a1a1a", borderColor: "#2a2a2a" }}
                       >
