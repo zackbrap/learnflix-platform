@@ -100,6 +100,38 @@ export type Database = {
           },
         ]
       }
+      content_notes: {
+        Row: {
+          content_id: string
+          id: string
+          note: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content_id: string
+          id?: string
+          note?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content_id?: string
+          id?: string
+          note?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_notes_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "contents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contents: {
         Row: {
           created_at: string | null
