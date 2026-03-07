@@ -9,6 +9,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
 } from "@/components/ui/dialog";
 import VideoViewer from "@/components/classroom/VideoViewer";
+import PdfViewer from "@/components/classroom/PdfViewer";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -42,6 +43,7 @@ const LessonPage = () => {
   const [addOpen, setAddOpen] = useState(false);
   const [viewContent, setViewContent] = useState<Tables<"contents"> | null>(null);
   const [activeVideo, setActiveVideo] = useState<Tables<"contents"> | null>(null);
+  const [activePdf, setActivePdf] = useState<Tables<"contents"> | null>(null);
 
   // Add content form state
   const [step, setStep] = useState<1 | 2>(1);
