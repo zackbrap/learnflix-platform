@@ -100,6 +100,85 @@ export type Database = {
           },
         ]
       }
+      contents: {
+        Row: {
+          created_at: string | null
+          data: Json | null
+          id: string
+          lesson_id: string
+          order_index: number | null
+          title: string
+          type: string
+          url: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          data?: Json | null
+          id?: string
+          lesson_id: string
+          order_index?: number | null
+          title: string
+          type: string
+          url?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          data?: Json | null
+          id?: string
+          lesson_id?: string
+          order_index?: number | null
+          title?: string
+          type?: string
+          url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contents_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lessons: {
+        Row: {
+          classroom_id: string
+          created_at: string | null
+          description: string | null
+          id: string
+          lesson_date: string | null
+          order_index: number | null
+          title: string
+        }
+        Insert: {
+          classroom_id: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          lesson_date?: string | null
+          order_index?: number | null
+          title: string
+        }
+        Update: {
+          classroom_id?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          lesson_date?: string | null
+          order_index?: number | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lessons_classroom_id_fkey"
+            columns: ["classroom_id"]
+            isOneToOne: false
+            referencedRelation: "classrooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
