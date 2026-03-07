@@ -27,10 +27,11 @@ interface QuestionItem {
 interface QuestionEditorProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSave: (title: string, questions: QuestionItem[]) => void;
+  onSave: (title: string, questions: QuestionItem[], scheduledAt: string | null) => void;
   submitting?: boolean;
   editorTitle: string;
   editorDescription: string;
+  showSchedule?: boolean;
 }
 
 const LABELS = ["A", "B", "C", "D", "E"];
@@ -54,11 +55,15 @@ const QuestionEditor = ({
   submitting = false,
   editorTitle,
   editorDescription,
+  showSchedule = false,
 }: QuestionEditorProps) => {
   const [questions, setQuestions] = useState<QuestionItem[]>([]);
   const [title, setTitle] = useState("");
   const [importOpen, setImportOpen] = useState(false);
   const [importText, setImportText] = useState("");
+  const [useSchedule, setUseSchedule] = useState(false);
+  const [scheduleDate, setScheduleDate] = useState("");
+  const [scheduleTime, setScheduleTime] = useState("");
 
   const addQuestion = () => {
     setQuestions([...questions, createEmptyQuestion()]);
@@ -165,7 +170,11 @@ const QuestionEditor = ({
       toast({ title: "Adicione pelo menos uma questão completa", variant: "destructive" });
       return;
     }
-    onSave(title.trim(), valid);
+    let scheduledAt: string | null = null;
+    if (showSchedule && useSchedule && scheduleDate && scheduleTime) {
+      scheduledAt = new Date(`${scheduleDate}T${scheduleTime}`).toISOString();
+    }
+    onSave(title.trim(), valid, scheduledAt);
   };
 
   return (
