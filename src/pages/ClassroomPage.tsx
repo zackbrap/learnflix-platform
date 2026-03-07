@@ -199,8 +199,10 @@ const ClassroomPage = () => {
                       lesson={lesson}
                       color={color}
                       showDelete
+                      showVisibility
                       onClick={() => navigate(`/turma/${id}/aula/${lesson.id}`)}
                       onDelete={() => handleDeleteLesson(lesson.id)}
+                      onToggleVisibility={() => handleToggleVisibility(lesson)}
                     />
                   ))}
                 </div>
