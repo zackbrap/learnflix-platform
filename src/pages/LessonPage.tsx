@@ -263,13 +263,7 @@ const LessonPage = () => {
                     {items.map((item) => (
                       <div
                         key={item.id}
-                        onClick={() => {
-                          if (item.type === "pdf" && item.url) {
-                            window.location.href = item.url;
-                          } else {
-                            setViewContent(item);
-                          }
-                        }}
+                        onClick={() => setViewContent(item)}
                         className="flex items-center gap-3 rounded-lg border px-4 py-3 cursor-pointer transition-colors hover:border-muted-foreground/30"
                         style={{ background: "#1a1a1a", borderColor: "#2a2a2a" }}
                       >
@@ -403,7 +397,7 @@ const LessonPage = () => {
             <div className="space-y-3">
               <div style={{ width: "100%", height: "70vh" }}>
                 <iframe
-                  src={`https://docs.google.com/viewer?url=${encodeURIComponent(viewContent.url)}&embedded=true`}
+                  src={`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/pdf-proxy?url=${encodeURIComponent(viewContent.url)}`}
                   width="100%"
                   height="100%"
                   style={{ border: "none", borderRadius: "8px" }}
