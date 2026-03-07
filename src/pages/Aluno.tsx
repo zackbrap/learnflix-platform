@@ -3,15 +3,27 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import AppSidebar from "@/components/AppSidebar";
-import { Play, Inbox } from "lucide-react";
+import { Play, Inbox, CalendarClock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+
+interface ScheduledItem {
+  id: string;
+  title: string;
+  type: string;
+  scheduled_at: string;
+  classroom_name: string;
+  classroom_color: string;
+  lesson_title: string;
+}
 
 const Aluno = () => {
   const navigate = useNavigate();
   const { user, profile } = useAuth();
   const [classrooms, setClassrooms] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [scheduled, setScheduled] = useState<ScheduledItem[]>([]);
+  const [scheduledLoading, setScheduledLoading] = useState(true);
 
   useEffect(() => {
     const fetchEnrollments = async () => {
@@ -32,6 +44,100 @@ const Aluno = () => {
     };
     fetchEnrollments();
   }, [user]);
+
+  useEffect(() => {
+    const fetchScheduled = async () => {
+      if (!user) return;
+      setScheduledLoading(true);
+
+      const { data: enrollments } = await supabase
+        .from("classroom_students")
+        .select("classroom_id")
+        .eq("user_id", user.id);
+
+      if (!enrollments || enrollments.length === 0) {
+        setScheduledLoading(false);
+        return;
+      }
+
+      const classroomIds = enrollments.map((e) => e.classroom_id);
+
+      const { data: lessons } = await supabase
+        .from("lessons")
+        .select("id, title, classroom_id")
+        .in("classroom_id", classroomIds)
+        .eq("is_visible", true);
+
+      if (!lessons || lessons.length === 0) {
+        setScheduledLoading(false);
+        return;
+      }
+
+      const lessonIds = lessons.map((l) => l.id);
+
+      const { data: contents } = await supabase
+        .from("contents")
+        .select("id, title, type, scheduled_at, lesson_id")
+        .in("lesson_id", lessonIds)
+        .in("type", ["revisao", "simulado"])
+        .not("scheduled_at", "is", null)
+        .gt("scheduled_at", new Date().toISOString())
+        .order("scheduled_at", { ascending: true });
+
+      if (!contents || contents.length === 0) {
+        setScheduled([]);
+        setScheduledLoading(false);
+        return;
+      }
+
+      const { data: classroomData } = await supabase
+        .from("classrooms")
+        .select("id, name, color")
+        .in("id", classroomIds);
+
+      const classroomMap = new Map(
+        (classroomData || []).map((c) => [c.id, c])
+      );
+      const lessonMap = new Map(
+        lessons.map((l) => [l.id, l])
+      );
+
+      const items: ScheduledItem[] = contents.map((c) => {
+        const lesson = lessonMap.get(c.lesson_id);
+        const classroom = lesson ? classroomMap.get(lesson.classroom_id) : null;
+        return {
+          id: c.id,
+          title: c.title,
+          type: c.type,
+          scheduled_at: c.scheduled_at!,
+          classroom_name: classroom?.name || "",
+          classroom_color: classroom?.color || "#e50914",
+          lesson_title: lesson?.title || "",
+        };
+      });
+
+      setScheduled(items);
+      setScheduledLoading(false);
+    };
+    fetchScheduled();
+  }, [user]);
+
+  const formatScheduleDate = (dateStr: string) => {
+    const d = new Date(dateStr);
+    return d.toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" }) +
+      " às " +
+      d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+  };
+
+  const getTimeRemaining = (dateStr: string) => {
+    const diff = new Date(dateStr).getTime() - Date.now();
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    if (days > 0) return `em ${days}d ${hours}h`;
+    if (hours > 0) return `em ${hours}h`;
+    const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    return `em ${mins}min`;
+  };
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -69,6 +175,55 @@ const Aluno = () => {
             </div>
           </div>
         </div>
+
+        {/* Atividades Agendadas */}
+        {(scheduledLoading || scheduled.length > 0) && (
+          <div className="px-8 py-6">
+            <div className="flex items-center gap-2 mb-4">
+              <CalendarClock className="h-5 w-5 text-amber-400" />
+              <h2 className="font-display text-2xl text-foreground">Atividades Agendadas</h2>
+            </div>
+
+            {scheduledLoading ? (
+              <div className="space-y-3">
+                {[...Array(2)].map((_, i) => (
+                  <Skeleton key={i} className="h-[72px] rounded-lg" />
+                ))}
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {scheduled.map((item) => (
+                  <div
+                    key={item.id}
+                    className="flex items-center gap-4 rounded-lg border px-4 py-3 transition-colors"
+                    style={{ background: "#1a1a1a", borderColor: "#2a2a2a" }}
+                  >
+                    <div
+                      className="flex h-10 w-10 items-center justify-center rounded-lg text-lg"
+                      style={{ background: item.classroom_color + "22" }}
+                    >
+                      {item.type === "simulado" ? "📋" : "📖"}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-foreground truncate">{item.title}</p>
+                      <p className="text-[11px] text-muted-foreground truncate">
+                        {item.classroom_name} · {item.lesson_title}
+                      </p>
+                    </div>
+                    <div className="text-right flex-shrink-0">
+                      <p className="text-xs font-medium text-amber-400">
+                        {getTimeRemaining(item.scheduled_at)}
+                      </p>
+                      <p className="text-[10px] text-muted-foreground">
+                        {formatScheduleDate(item.scheduled_at)}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Minhas Turmas */}
         <div className="px-8 py-6">
