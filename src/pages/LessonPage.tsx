@@ -554,8 +554,8 @@ const LessonPage = () => {
         }}
         onSave={handleSaveQuestions}
         submitting={submitting}
-        editorTitle={questionEditorType === "simulado" ? "Editor de Simulado" : "Editor de Exercício Interativo"}
-        editorDescription={questionEditorType === "simulado" ? "Crie questões para o simulado." : "Crie questões de revisão interativas."}
+        editorTitle={questionEditorType === "simulado" ? "Editor de Revisões" : "Editor de Questões Interativas"}
+        editorDescription={questionEditorType === "simulado" ? "Crie questões de revisão para os alunos." : "Crie questões interativas para a aula."}
       />
     </div>
   );
