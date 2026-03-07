@@ -139,6 +139,7 @@ export type Database = {
           id: string
           lesson_id: string
           order_index: number | null
+          scheduled_at: string | null
           title: string
           type: string
           url: string | null
@@ -149,6 +150,7 @@ export type Database = {
           id?: string
           lesson_id: string
           order_index?: number | null
+          scheduled_at?: string | null
           title: string
           type: string
           url?: string | null
@@ -159,6 +161,7 @@ export type Database = {
           id?: string
           lesson_id?: string
           order_index?: number | null
+          scheduled_at?: string | null
           title?: string
           type?: string
           url?: string | null
