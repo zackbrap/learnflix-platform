@@ -406,35 +406,6 @@ const LessonPage = () => {
             <DialogDescription>{typeLabels[viewContent?.type || ""]?.label || ""}</DialogDescription>
           </DialogHeader>
 
-          {viewContent?.type === "pdf" && viewContent.url && (
-            <div className="space-y-3">
-              <div style={{ width: "100%", height: "600px" }}>
-                <iframe
-                  src={`https://mozilla.github.io/pdf.js/web/viewer.html?file=${encodeURIComponent(viewContent.url)}`}
-                  width="100%"
-                  height="600px"
-                  style={{ border: "none", borderRadius: "8px" }}
-                  title="PDF Viewer"
-                />
-              </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => window.open(viewContent.url!, '_blank')}
-                  className="rounded-lg border border-border px-4 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  Abrir em nova aba
-                </button>
-                <a
-                  href={viewContent.url}
-                  download
-                  className="rounded-lg px-4 py-2 text-sm font-semibold text-white transition-colors hover:opacity-90"
-                  style={{ background: "#e50914" }}
-                >
-                  Download
-                </a>
-              </div>
-            </div>
-          )}
 
 
           {viewContent?.type === "podcast" && viewContent.url && (
