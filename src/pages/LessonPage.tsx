@@ -1,9 +1,4 @@
 import { useEffect, useState, useCallback } from "react";
-import { Document, Page, pdfjs } from 'react-pdf';
-import 'react-pdf/dist/Page/AnnotationLayer.css';
-import 'react-pdf/dist/Page/TextLayer.css';
-
-pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -49,7 +44,6 @@ const LessonPage = () => {
   const [contents, setContents] = useState<Tables<"contents">[]>([]);
   const [addOpen, setAddOpen] = useState(false);
   const [viewContent, setViewContent] = useState<Tables<"contents"> | null>(null);
-  const [numPages, setNumPages] = useState<number>(0);
   const [pageNumber, setPageNumber] = useState(1);
 
   // Add content form state
@@ -401,41 +395,15 @@ const LessonPage = () => {
 
           {viewContent?.type === "pdf" && viewContent.url && (
             <div className="space-y-3">
-              <div style={{ background: "#1a1a1a", borderRadius: "8px", padding: "16px" }}>
-                <Document
-                  file={viewContent.url}
-                  onLoadSuccess={({ numPages }) => { setNumPages(numPages); setPageNumber(1); }}
-                  onLoadError={(error) => console.error("PDF load error:", error)}
-                >
-                  <Page
-                    pageNumber={pageNumber}
-                    width={Math.min(window.innerWidth * 0.7, 800)}
-                    renderTextLayer={true}
-                    renderAnnotationLayer={true}
-                  />
-                </Document>
-
-                <div className="flex items-center justify-between mt-4">
-                  <button
-                    onClick={() => setPageNumber(p => Math.max(1, p - 1))}
-                    disabled={pageNumber <= 1}
-                    className="px-4 py-2 rounded-lg border border-border text-sm disabled:opacity-50 hover:bg-secondary"
-                  >
-                    ← Anterior
-                  </button>
-                  <span className="text-sm text-muted-foreground">
-                    Página {pageNumber} de {numPages}
-                  </span>
-                  <button
-                    onClick={() => setPageNumber(p => Math.min(numPages, p + 1))}
-                    disabled={pageNumber >= numPages}
-                    className="px-4 py-2 rounded-lg border border-border text-sm disabled:opacity-50 hover:bg-secondary"
-                  >
-                    Próxima →
-                  </button>
-                </div>
+              <div style={{ width: "100%", height: "70vh" }}>
+                <iframe
+                  src={`https://docs.google.com/viewer?url=${encodeURIComponent(viewContent.url)}&embedded=true`}
+                  width="100%"
+                  height="100%"
+                  style={{ border: "none", borderRadius: "8px" }}
+                  title={viewContent.title}
+                />
               </div>
-
               <div className="flex gap-2">
                 <button
                   onClick={() => window.open(viewContent.url!, '_blank')}
