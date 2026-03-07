@@ -101,6 +101,7 @@ const PdfViewer = ({ content, onBack }: PdfViewerProps) => {
         <div className="flex-1 min-w-0">
           {content.url ? (
             <iframe
+              ref={iframeRef}
               src={`https://mozilla.github.io/pdf.js/web/viewer.html?file=${encodeURIComponent(content.url)}`}
               width="100%"
               style={{ height: "calc(100vh - 200px)", border: "none", borderRadius: "8px" }}
