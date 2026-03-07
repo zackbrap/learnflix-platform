@@ -311,7 +311,7 @@ const LessonPage = () => {
 
   const needsFileUpload = selectedType === "pdf" || selectedType === "infographic";
   const needsUrl = selectedType === "video" || selectedType === "podcast";
-  const needsTextarea = ["mindmap"].includes(selectedType);
+  const needsTextarea = false;
 
   return (
     <div className="flex min-h-screen" style={{ background: "#141414" }}>
@@ -596,11 +596,6 @@ const LessonPage = () => {
           )}
 
 
-          {["mindmap"].includes(viewContent?.type || "") && (
-            <div className="rounded-lg border px-4 py-8 text-center" style={{ background: "#141414", borderColor: "#2a2a2a" }}>
-              <p className="text-sm text-muted-foreground">Em breve</p>
-            </div>
-          )}
         </DialogContent>
       </Dialog>
 
