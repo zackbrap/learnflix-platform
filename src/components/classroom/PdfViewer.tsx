@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { ArrowLeft, ExternalLink, Download, Save, Flag } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { ArrowLeft, Maximize, Download, Save, Flag } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
@@ -15,6 +15,13 @@ const PdfViewer = ({ content, onBack }: PdfViewerProps) => {
   const { user } = useAuth();
   const [note, setNote] = useState("");
   const [saving, setSaving] = useState(false);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+
+  const handleFullscreen = () => {
+    if (iframeRef.current) {
+      iframeRef.current.requestFullscreen?.();
+    }
+  };
 
   useEffect(() => {
     if (!user?.id || !content.id) return;
@@ -68,12 +75,12 @@ const PdfViewer = ({ content, onBack }: PdfViewerProps) => {
           {content.url && (
             <>
               <button
-                onClick={() => window.open(content.url!, "_blank")}
+                onClick={handleFullscreen}
                 className="flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-muted"
                 style={{ borderColor: "#2a2a2a" }}
               >
-                <ExternalLink className="h-3.5 w-3.5" />
-                Abrir em nova aba
+                <Maximize className="h-3.5 w-3.5" />
+                Abrir em tela cheia
               </button>
               <a
                 href={content.url}
@@ -94,6 +101,7 @@ const PdfViewer = ({ content, onBack }: PdfViewerProps) => {
         <div className="flex-1 min-w-0">
           {content.url ? (
             <iframe
+              ref={iframeRef}
               src={`https://mozilla.github.io/pdf.js/web/viewer.html?file=${encodeURIComponent(content.url)}`}
               width="100%"
               style={{ height: "calc(100vh - 200px)", border: "none", borderRadius: "8px" }}
