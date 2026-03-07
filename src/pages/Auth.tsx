@@ -9,7 +9,9 @@ type Role = "teacher" | "student";
 
 const Auth = () => {
   const navigate = useNavigate();
-  const [mode, setMode] = useState<AuthMode>("login");
+  const params = new URLSearchParams(window.location.search);
+  const defaultMode = params.get("mode") === "register" ? "register" : "login";
+  const [mode, setMode] = useState<AuthMode>(defaultMode);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
