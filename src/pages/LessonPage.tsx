@@ -478,12 +478,6 @@ const LessonPage = () => {
                 )}
               </div>
               <div className="flex gap-2">
-                <button
-                  onClick={() => window.open(viewContent.url!, '_blank')}
-                  className="rounded-lg border border-border px-4 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  Abrir em nova aba
-                </button>
                 <a
                   href={viewContent.url}
                   download
