@@ -74,6 +74,17 @@ const ClassroomPage = () => {
     }
   }, [id, isTeacher, activeTab, fetchLessons]);
 
+  const handleToggleVisibility = async (lesson: Tables<"lessons">) => {
+    const currentVisible = (lesson as any).is_visible !== false;
+    const { error } = await supabase.from("lessons").update({ is_visible: !currentVisible } as any).eq("id", lesson.id);
+    if (error) {
+      toast({ title: "Erro ao alterar visibilidade", description: error.message, variant: "destructive" });
+      return;
+    }
+    toast({ title: currentVisible ? "Aula ocultada" : "Aula visível" });
+    fetchLessons();
+  };
+
   const handleDeleteLesson = async (lessonId: string) => {
     const { error } = await supabase.from("lessons").delete().eq("id", lessonId);
     if (error) {
