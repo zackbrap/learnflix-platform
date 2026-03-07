@@ -206,6 +206,36 @@ const LessonPage = () => {
     fetchContents();
   };
 
+  const handleOpenContent = (item: Tables<"contents">) => {
+    if (item.type === "flashcard") {
+      setViewContent(null);
+      setActiveFlashcard(item);
+      return;
+    }
+
+    if (item.type === "video") {
+      setActiveVideo(item);
+      return;
+    }
+
+    if (item.type === "pdf") {
+      setActivePdf(item);
+      return;
+    }
+
+    if (item.type === "podcast") {
+      setActivePodcast(item);
+      return;
+    }
+
+    if (item.type === "infographic") {
+      setActiveInfographic(item);
+      return;
+    }
+
+    setViewContent(item);
+  };
+
   const formatDate = (dateStr: string | null) => {
     if (!dateStr) return null;
     const d = new Date(dateStr + "T00:00:00");
@@ -318,7 +348,7 @@ const LessonPage = () => {
                         {items.map((item) => (
                           <div
                             key={item.id}
-                            onClick={() => item.type === "video" ? setActiveVideo(item) : item.type === "pdf" ? setActivePdf(item) : item.type === "podcast" ? setActivePodcast(item) : item.type === "infographic" ? setActiveInfographic(item) : item.type === "flashcard" ? setActiveFlashcard(item) : setViewContent(item)}
+                            onClick={() => handleOpenContent(item)}
                             className="flex items-center gap-3 rounded-lg border px-4 py-3 cursor-pointer transition-colors hover:border-muted-foreground/30"
                             style={{ background: "#1a1a1a", borderColor: "#2a2a2a" }}
                           >
@@ -466,7 +496,7 @@ const LessonPage = () => {
           )}
 
 
-          {["mindmap", "flashcard", "question", "simulado"].includes(viewContent?.type || "") && (
+          {["mindmap", "question", "simulado"].includes(viewContent?.type || "") && (
             <div className="rounded-lg border px-4 py-8 text-center" style={{ background: "#141414", borderColor: "#2a2a2a" }}>
               <p className="text-sm text-muted-foreground">Em breve</p>
             </div>
