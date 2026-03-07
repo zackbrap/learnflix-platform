@@ -44,7 +44,7 @@ const LessonPage = () => {
   const [contents, setContents] = useState<Tables<"contents">[]>([]);
   const [addOpen, setAddOpen] = useState(false);
   const [viewContent, setViewContent] = useState<Tables<"contents"> | null>(null);
-  const [pageNumber, setPageNumber] = useState(1);
+  
 
   // Add content form state
   const [step, setStep] = useState<1 | 2>(1);
