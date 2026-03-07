@@ -466,7 +466,7 @@ const LessonPage = () => {
               {contentTypes.map((ct) => (
                 <button
                   key={ct.type}
-                  onClick={() => {
+                  onClick={async () => {
                     if (ct.type === "flashcard") {
                       setSelectedType("flashcard");
                       setAddOpen(false);
