@@ -294,6 +294,7 @@ const LessonPage = () => {
               )}
             </>
           )}
+        </div>
       </main>
 
       {/* Add Content Dialog */}
