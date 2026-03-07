@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { PlayCircle, GraduationCap, BookOpen } from "lucide-react";
 import { toast } from "sonner";
 
-type AuthMode = "login" | "register";
+type AuthMode = "login" | "register" | "forgot";
 type Role = "teacher" | "student";
 
 const Auth = () => {
@@ -23,6 +23,16 @@ const Auth = () => {
     setLoading(true);
 
     try {
+      if (mode === "forgot") {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/reset-password`,
+        });
+        if (error) throw error;
+        toast.success("Email de recuperação enviado! Verifique sua caixa de entrada.");
+        setMode("login");
+        return;
+      }
+
       if (mode === "login") {
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
@@ -170,20 +180,50 @@ const Auth = () => {
               />
             </div>
 
+            {mode !== "forgot" && (
+              <div>
+                <input
+                  type="password"
+                  placeholder="Senha"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  minLength={6}
+                  className="w-full rounded-lg border border-border bg-secondary px-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+                />
+              </div>
+            )}
+
             <button
               type="submit"
               disabled={loading}
               className="w-full rounded-lg bg-primary py-3 font-semibold text-primary-foreground transition-all hover:bg-primary/90 disabled:opacity-50"
             >
-              {loading ? "Carregando..." : mode === "login" ? "Entrar" : "Criar conta"}
+              {loading
+                ? "Carregando..."
+                : mode === "login"
+                ? "Entrar"
+                : mode === "forgot"
+                ? "Enviar email de recuperação"
+                : "Criar conta"}
             </button>
+
+            {mode === "login" && (
+              <button
+                type="button"
+                onClick={() => setMode("forgot")}
+                className="w-full text-sm text-muted-foreground hover:text-primary transition-colors"
+              >
+                Esqueci minha senha
+              </button>
+            )}
 
             <button
               type="button"
               onClick={() => setMode(mode === "login" ? "register" : "login")}
               className="w-full rounded-lg border border-border py-3 font-semibold text-muted-foreground transition-all hover:text-foreground hover:border-muted-foreground/50"
             >
-              {mode === "login" ? "Criar conta" : "Já tenho conta"}
+              {mode === "forgot" ? "Voltar ao login" : mode === "login" ? "Criar conta" : "Já tenho conta"}
             </button>
           </form>
         </div>
