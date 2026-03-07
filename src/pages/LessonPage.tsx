@@ -15,6 +15,7 @@ import InfographicViewer from "@/components/classroom/InfographicViewer";
 import FlashcardEditor from "@/components/classroom/FlashcardEditor";
 import FlashcardViewer from "@/components/classroom/FlashcardViewer";
 import QuestionEditor from "@/components/classroom/QuestionEditor";
+import QuestionViewer from "@/components/classroom/QuestionViewer";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -56,6 +57,7 @@ const LessonPage = () => {
   const [activeFlashcard, setActiveFlashcard] = useState<Tables<"contents"> | null>(null);
   const [questionEditorOpen, setQuestionEditorOpen] = useState(false);
   const [questionEditorType, setQuestionEditorType] = useState<"question" | "simulado" | "revisao">("question");
+  const [activeQuestion, setActiveQuestion] = useState<Tables<"contents"> | null>(null);
   // Add content form state
   const [step, setStep] = useState<1 | 2>(1);
   const [selectedType, setSelectedType] = useState("");
@@ -259,6 +261,11 @@ const LessonPage = () => {
       return;
     }
 
+    if (item.type === "question" || item.type === "simulado" || item.type === "revisao") {
+      setActiveQuestion(item);
+      return;
+    }
+
     setViewContent(item);
   };
 
@@ -320,6 +327,11 @@ const LessonPage = () => {
             <FlashcardViewer
               content={activeFlashcard}
               onBack={() => setActiveFlashcard(null)}
+            />
+          ) : activeQuestion ? (
+            <QuestionViewer
+              content={activeQuestion}
+              onBack={() => setActiveQuestion(null)}
             />
           ) : (
             <>
