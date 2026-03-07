@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import VideoViewer from "@/components/classroom/VideoViewer";
 import PdfViewer from "@/components/classroom/PdfViewer";
+import PodcastViewer from "@/components/classroom/PodcastViewer";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -44,6 +45,7 @@ const LessonPage = () => {
   const [viewContent, setViewContent] = useState<Tables<"contents"> | null>(null);
   const [activeVideo, setActiveVideo] = useState<Tables<"contents"> | null>(null);
   const [activePdf, setActivePdf] = useState<Tables<"contents"> | null>(null);
+  const [activePodcast, setActivePodcast] = useState<Tables<"contents"> | null>(null);
 
   // Add content form state
   const [step, setStep] = useState<1 | 2>(1);
@@ -221,6 +223,11 @@ const LessonPage = () => {
               content={activePdf}
               onBack={() => setActivePdf(null)}
             />
+          ) : activePodcast ? (
+            <PodcastViewer
+              content={activePodcast}
+              onBack={() => setActivePodcast(null)}
+            />
           ) : (
             <>
               <button
@@ -274,7 +281,7 @@ const LessonPage = () => {
                         {items.map((item) => (
                           <div
                             key={item.id}
-                            onClick={() => item.type === "video" ? setActiveVideo(item) : item.type === "pdf" ? setActivePdf(item) : setViewContent(item)}
+                            onClick={() => item.type === "video" ? setActiveVideo(item) : item.type === "pdf" ? setActivePdf(item) : item.type === "podcast" ? setActivePodcast(item) : setViewContent(item)}
                             className="flex items-center gap-3 rounded-lg border px-4 py-3 cursor-pointer transition-colors hover:border-muted-foreground/30"
                             style={{ background: "#1a1a1a", borderColor: "#2a2a2a" }}
                           >
