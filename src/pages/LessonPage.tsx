@@ -44,7 +44,9 @@ const LessonPage = () => {
   const [contents, setContents] = useState<Tables<"contents">[]>([]);
   const [addOpen, setAddOpen] = useState(false);
   const [viewContent, setViewContent] = useState<Tables<"contents"> | null>(null);
-  
+  const [pdfInlineUrl, setPdfInlineUrl] = useState<string | null>(null);
+  const [pdfLoading, setPdfLoading] = useState(false);
+  const [pdfError, setPdfError] = useState<string | null>(null);
 
   // Add content form state
   const [step, setStep] = useState<1 | 2>(1);
@@ -92,6 +94,57 @@ const LessonPage = () => {
   }, [lessonId]);
 
   useEffect(() => { fetchContents(); }, [fetchContents]);
+
+  useEffect(() => {
+    if (!(viewContent?.type === "pdf" && viewContent.url)) {
+      setPdfLoading(false);
+      setPdfError(null);
+      setPdfInlineUrl((prev) => {
+        if (prev) URL.revokeObjectURL(prev);
+        return null;
+      });
+      return;
+    }
+
+    let active = true;
+
+    const loadPdfInline = async () => {
+      try {
+        setPdfLoading(true);
+        setPdfError(null);
+
+        const { data, error } = await supabase.functions.invoke("pdf-proxy", {
+          body: { url: viewContent.url },
+        });
+
+        if (error) throw error;
+
+        const blob = data instanceof Blob ? data : new Blob([data], { type: "application/pdf" });
+        const objectUrl = URL.createObjectURL(blob);
+
+        if (!active) {
+          URL.revokeObjectURL(objectUrl);
+          return;
+        }
+
+        setPdfInlineUrl((prev) => {
+          if (prev) URL.revokeObjectURL(prev);
+          return objectUrl;
+        });
+      } catch (error) {
+        console.error("PDF proxy error:", error);
+        if (active) setPdfError("Não foi possível carregar o PDF.");
+      } finally {
+        if (active) setPdfLoading(false);
+      }
+    };
+
+    loadPdfInline();
+
+    return () => {
+      active = false;
+    };
+  }, [viewContent]);
 
   const resetForm = () => {
     setStep(1);
@@ -386,7 +439,17 @@ const LessonPage = () => {
       </Dialog>
 
       {/* Content Viewer Dialog */}
-      <Dialog open={!!viewContent} onOpenChange={(o) => { if (!o) setViewContent(null); }}>
+      <Dialog open={!!viewContent} onOpenChange={(o) => {
+        if (!o) {
+          setViewContent(null);
+          setPdfError(null);
+          setPdfLoading(false);
+          setPdfInlineUrl((prev) => {
+            if (prev) URL.revokeObjectURL(prev);
+            return null;
+          });
+        }
+      }}>
         <DialogContent style={{ background: "#1a1a1a", borderColor: "#2a2a2a" }} className="max-w-3xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-foreground">{viewContent?.title}</DialogTitle>
@@ -396,13 +459,23 @@ const LessonPage = () => {
           {viewContent?.type === "pdf" && viewContent.url && (
             <div className="space-y-3">
               <div style={{ width: "100%", height: "70vh" }}>
-                <iframe
-                  src={`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/pdf-proxy?url=${encodeURIComponent(viewContent.url)}`}
-                  width="100%"
-                  height="100%"
-                  style={{ border: "none", borderRadius: "8px" }}
-                  title={viewContent.title}
-                />
+                {pdfLoading ? (
+                  <div className="h-full w-full flex items-center justify-center rounded-lg border border-border/60">
+                    <p className="text-sm text-muted-foreground">Carregando PDF...</p>
+                  </div>
+                ) : pdfInlineUrl ? (
+                  <iframe
+                    src={pdfInlineUrl}
+                    width="100%"
+                    height="100%"
+                    style={{ border: "none", borderRadius: "8px" }}
+                    title={viewContent.title}
+                  />
+                ) : (
+                  <div className="h-full w-full flex items-center justify-center rounded-lg border border-border/60">
+                    <p className="text-sm text-muted-foreground">{pdfError || "Não foi possível carregar o PDF."}</p>
+                  </div>
+                )}
               </div>
               <div className="flex gap-2">
                 <button

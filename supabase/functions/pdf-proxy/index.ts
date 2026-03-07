@@ -1,55 +1,73 @@
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "GET, OPTIONS",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
+
+function isAllowedUrl(urlString: string): boolean {
+  try {
+    const parsed = new URL(urlString);
+
+    if (parsed.protocol !== "https:") return false;
+
+    const hostname = parsed.hostname.toLowerCase();
+    if (
+      hostname === "localhost" ||
+      hostname === "0.0.0.0" ||
+      hostname.startsWith("127.") ||
+      hostname.startsWith("10.") ||
+      hostname.startsWith("192.168.") ||
+      hostname.startsWith("169.254.") ||
+      /^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(hostname)
+    ) {
+      return false;
+    }
+
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+    return new Response("ok", { headers: corsHeaders });
   }
 
   try {
-    const url = new URL(req.url);
-    const fileUrl = url.searchParams.get("url");
+    const body = await req.json();
+    const fileUrl = body?.url;
 
-    if (!fileUrl) {
+    if (!fileUrl || typeof fileUrl !== "string" || !isAllowedUrl(fileUrl)) {
       return new Response(
-        JSON.stringify({ error: "Missing 'url' parameter" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    // Validate URL
-    const parsed = new URL(fileUrl);
-    if (parsed.protocol !== "https:") {
-      return new Response(
-        JSON.stringify({ error: "Only HTTPS URLs allowed" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        JSON.stringify({ error: "Invalid or disallowed URL" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
 
     const response = await fetch(fileUrl);
     if (!response.ok) {
-      throw new Error(`Failed to fetch: ${response.statusText}`);
+      throw new Error(`Failed to fetch PDF: ${response.status} ${response.statusText}`);
     }
 
-    const data = await response.arrayBuffer();
+    const fileBuffer = await response.arrayBuffer();
 
-    return new Response(data, {
+    return new Response(fileBuffer, {
       status: 200,
       headers: {
         ...corsHeaders,
-        "Content-Type": response.headers.get("content-type") || "application/pdf",
-        "Content-Disposition": "inline",
-        "Cache-Control": "public, max-age=3600",
+        "Content-Type": "application/octet-stream",
+        "Content-Disposition": "inline; filename=\"document.pdf\"",
+        "Cache-Control": "no-cache, no-store, must-revalidate",
       },
     });
   } catch (error) {
-    console.error("PDF proxy error:", error);
+    const message = error instanceof Error ? error.message : "Unknown proxy error";
+    console.error("PDF proxy error:", message);
+
     return new Response(
-      JSON.stringify({ error: error.message }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      JSON.stringify({ error: message }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   }
 });
