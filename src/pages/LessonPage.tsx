@@ -27,8 +27,8 @@ const contentTypes = [
   { type: "mindmap", icon: "🗺️", label: "Mapa Mental" },
   { type: "infographic", icon: "🖼️", label: "Infográfico" },
   { type: "flashcard", icon: "🃏", label: "Flashcard" },
-  { type: "question", icon: "📝", label: "Questões" },
-  { type: "simulado", icon: "📋", label: "Simulado" },
+  { type: "question", icon: "📝", label: "Questões Interativas" },
+  { type: "simulado", icon: "📋", label: "Revisões" },
 ];
 
 const typeLabels: Record<string, { icon: string; label: string }> = {};
