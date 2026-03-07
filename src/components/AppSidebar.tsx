@@ -10,17 +10,17 @@ interface AppSidebarProps {
 
 const teacherNav = [
   { title: "Início", icon: Home, path: "/dashboard" },
-  { title: "Turmas", icon: Users, path: "/dashboard/turmas" },
-  { title: "Estatísticas", icon: BarChart3, path: "/dashboard/estatisticas" },
-  { title: "Comunidade", icon: MessageSquare, path: "/dashboard/comunidade" },
-  { title: "Configurações", icon: Settings, path: "/dashboard/config" },
+  { title: "Turmas", icon: Users, path: "/dashboard" },
+  { title: "Estatísticas", icon: BarChart3, path: "/estatisticas" },
+  { title: "Comunidade", icon: MessageSquare, path: "/social" },
+  { title: "Configurações", icon: Settings, path: "/config" },
 ];
 
 const studentNav = [
   { title: "Início", icon: Home, path: "/aluno" },
-  { title: "Turmas", icon: Users, path: "/aluno/turmas" },
-  { title: "Comunidade", icon: MessageSquare, path: "/aluno/comunidade" },
-  { title: "Configurações", icon: Settings, path: "/aluno/config" },
+  { title: "Turmas", icon: Users, path: "/aluno" },
+  { title: "Comunidade", icon: MessageSquare, path: "/social" },
+  { title: "Configurações", icon: Settings, path: "/config" },
 ];
 
 const AppSidebar = ({ variant }: AppSidebarProps) => {
