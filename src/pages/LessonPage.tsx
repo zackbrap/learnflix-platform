@@ -476,6 +476,24 @@ const LessonPage = () => {
                       setQuestionEditorType(ct.type as "question" | "simulado" | "revisao");
                       setAddOpen(false);
                       setQuestionEditorOpen(true);
+                    } else if (ct.type === "mindmap") {
+                      // Create empty mindmap and open editor
+                      if (!lessonId) return;
+                      const { data: newContent, error } = await supabase.from("contents").insert({
+                        lesson_id: lessonId,
+                        type: "mindmap",
+                        title: "Novo Mapa Mental",
+                        data: { nodes: [{ id: 'root', type: 'root', position: { x: 400, y: 250 }, data: { label: 'Tema Central' } }], edges: [] } as any,
+                        order_index: contents.length,
+                      }).select().single();
+                      if (error) {
+                        toast({ title: "Erro ao criar mapa mental", description: error.message, variant: "destructive" });
+                        return;
+                      }
+                      setAddOpen(false);
+                      resetForm();
+                      await fetchContents();
+                      if (newContent) setActiveMindMap(newContent);
                     } else {
                       setSelectedType(ct.type);
                       setStep(2);
