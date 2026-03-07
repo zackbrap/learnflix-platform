@@ -27,8 +27,8 @@ const contentTypes = [
   { type: "mindmap", icon: "🗺️", label: "Mapa Mental" },
   { type: "infographic", icon: "🖼️", label: "Infográfico" },
   { type: "flashcard", icon: "🃏", label: "Flashcard" },
-  { type: "question", icon: "📝", label: "Questões" },
-  { type: "simulado", icon: "📋", label: "Simulado" },
+  { type: "question", icon: "📝", label: "Questões Interativas" },
+  { type: "simulado", icon: "📋", label: "Revisões" },
 ];
 
 const typeLabels: Record<string, { icon: string; label: string }> = {};
@@ -554,8 +554,8 @@ const LessonPage = () => {
         }}
         onSave={handleSaveQuestions}
         submitting={submitting}
-        editorTitle={questionEditorType === "simulado" ? "Editor de Simulado" : "Editor de Exercício Interativo"}
-        editorDescription={questionEditorType === "simulado" ? "Crie questões para o simulado." : "Crie questões de revisão interativas."}
+        editorTitle={questionEditorType === "simulado" ? "Editor de Revisões" : "Editor de Questões Interativas"}
+        editorDescription={questionEditorType === "simulado" ? "Crie questões de revisão para os alunos." : "Crie questões interativas para a aula."}
       />
     </div>
   );
