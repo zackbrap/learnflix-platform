@@ -539,7 +539,7 @@ const LessonPage = () => {
           )}
 
 
-          {["mindmap", "question", "simulado", "revisao"].includes(viewContent?.type || "") && (
+          {["mindmap"].includes(viewContent?.type || "") && (
             <div className="rounded-lg border px-4 py-8 text-center" style={{ background: "#141414", borderColor: "#2a2a2a" }}>
               <p className="text-sm text-muted-foreground">Em breve</p>
             </div>
