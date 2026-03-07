@@ -125,9 +125,11 @@ const QuestionEditor = ({
 
         for (let i = 1; i < lines.length; i++) {
           const line = lines[i].trim();
-          const match = line.match(/^([A-E])\)\s*(.*)/i);
+          const isStarred = line.startsWith("*");
+          const cleanLine = isStarred ? line.substring(1).trim() : line;
+          const match = cleanLine.match(/^([A-E])\)\s*(.*)/i);
           if (match) {
-            const isCorrect = line.startsWith("*") || match[2].endsWith("*");
+            const isCorrect = isStarred || match[2].endsWith("*");
             const text = match[2].replace(/\*$/g, "").trim();
             if (isCorrect) correctIndex = alternatives.length;
             alternatives.push({ label: match[1].toUpperCase(), text });
