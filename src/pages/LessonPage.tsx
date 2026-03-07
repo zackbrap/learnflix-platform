@@ -59,6 +59,7 @@ const LessonPage = () => {
   const [questionEditorOpen, setQuestionEditorOpen] = useState(false);
   const [questionEditorType, setQuestionEditorType] = useState<"question" | "simulado" | "revisao">("question");
   const [activeQuestion, setActiveQuestion] = useState<Tables<"contents"> | null>(null);
+  const [activeMindMap, setActiveMindMap] = useState<Tables<"contents"> | null>(null);
   // Add content form state
   const [step, setStep] = useState<1 | 2>(1);
   const [selectedType, setSelectedType] = useState("");
@@ -265,6 +266,11 @@ const LessonPage = () => {
 
     if (item.type === "question" || item.type === "simulado" || item.type === "revisao") {
       setActiveQuestion(item);
+      return;
+    }
+
+    if (item.type === "mindmap") {
+      setActiveMindMap(item);
       return;
     }
 
