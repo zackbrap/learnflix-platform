@@ -16,6 +16,7 @@ import FlashcardEditor from "@/components/classroom/FlashcardEditor";
 import FlashcardViewer from "@/components/classroom/FlashcardViewer";
 import QuestionEditor from "@/components/classroom/QuestionEditor";
 import QuestionViewer from "@/components/classroom/QuestionViewer";
+import MindMapViewer from "@/components/classroom/MindMapViewer";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
