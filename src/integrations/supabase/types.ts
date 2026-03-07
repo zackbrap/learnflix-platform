@@ -147,6 +147,7 @@ export type Database = {
           created_at: string | null
           description: string | null
           id: string
+          is_visible: boolean | null
           lesson_date: string | null
           order_index: number | null
           title: string
@@ -156,6 +157,7 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           id?: string
+          is_visible?: boolean | null
           lesson_date?: string | null
           order_index?: number | null
           title: string
@@ -165,6 +167,7 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           id?: string
+          is_visible?: boolean | null
           lesson_date?: string | null
           order_index?: number | null
           title?: string

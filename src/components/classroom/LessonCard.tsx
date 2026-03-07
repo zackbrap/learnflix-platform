@@ -1,25 +1,29 @@
-import { Trash2 } from "lucide-react";
+import { Trash2, Eye, EyeOff } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 
 interface LessonCardProps {
   lesson: Tables<"lessons">;
   color: string;
   showDelete?: boolean;
+  showVisibility?: boolean;
   onClick: () => void;
   onDelete?: () => void;
+  onToggleVisibility?: () => void;
 }
 
-const LessonCard = ({ lesson, color, showDelete, onClick, onDelete }: LessonCardProps) => {
+const LessonCard = ({ lesson, color, showDelete, showVisibility, onClick, onDelete, onToggleVisibility }: LessonCardProps) => {
   const formatDate = (dateStr: string | null) => {
     if (!dateStr) return null;
     const d = new Date(dateStr + "T00:00:00");
     return d.toLocaleDateString("pt-BR");
   };
 
+  const isVisible = (lesson as any).is_visible !== false;
+
   return (
     <div
       onClick={onClick}
-      className="flex items-center gap-4 rounded-lg border px-4 py-4 cursor-pointer transition-colors hover:border-muted-foreground/30"
+      className={`flex items-center gap-4 rounded-lg border px-4 py-4 cursor-pointer transition-colors hover:border-muted-foreground/30 ${!isVisible ? "opacity-50" : ""}`}
       style={{ background: "#1a1a1a", borderColor: "#2a2a2a" }}
     >
       <div
@@ -37,17 +41,30 @@ const LessonCard = ({ lesson, color, showDelete, onClick, onDelete }: LessonCard
           <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{lesson.description}</p>
         )}
       </div>
-      {showDelete && (
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onDelete?.();
-          }}
-          className="text-muted-foreground hover:text-red-500 transition-colors p-1"
-        >
-          <Trash2 className="h-4 w-4" />
-        </button>
-      )}
+      <div className="flex items-center gap-1">
+        {showVisibility && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleVisibility?.();
+            }}
+            className={`transition-colors p-1 ${isVisible ? "text-muted-foreground hover:text-green-500" : "text-red-500 hover:text-green-500"}`}
+          >
+            {isVisible ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+          </button>
+        )}
+        {showDelete && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete?.();
+            }}
+            className="text-muted-foreground hover:text-red-500 transition-colors p-1"
+          >
+            <Trash2 className="h-4 w-4" />
+          </button>
+        )}
+      </div>
     </div>
   );
 };

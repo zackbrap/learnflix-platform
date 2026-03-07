@@ -57,14 +57,24 @@ const ClassroomPage = () => {
   const fetchLessons = useCallback(async () => {
     if (!id) return;
     setLessonsLoading(true);
-    const { data } = await supabase
-      .from("lessons")
-      .select("*")
-      .eq("classroom_id", id)
-      .order("lesson_date", { ascending: true });
-    setLessons(data ?? []);
+    if (!isTeacher) {
+      const { data } = await (supabase
+        .from("lessons")
+        .select("*")
+        .eq("classroom_id", id) as any)
+        .eq("is_visible", true)
+        .order("lesson_date", { ascending: true });
+      setLessons(data ?? []);
+    } else {
+      const { data } = await supabase
+        .from("lessons")
+        .select("*")
+        .eq("classroom_id", id)
+        .order("lesson_date", { ascending: true });
+      setLessons(data ?? []);
+    }
     setLessonsLoading(false);
-  }, [id]);
+  }, [id, isTeacher]);
 
   useEffect(() => {
     if (!id) return;
@@ -73,6 +83,17 @@ const ClassroomPage = () => {
       fetchLessons();
     }
   }, [id, isTeacher, activeTab, fetchLessons]);
+
+  const handleToggleVisibility = async (lesson: Tables<"lessons">) => {
+    const currentVisible = (lesson as any).is_visible !== false;
+    const { error } = await supabase.from("lessons").update({ is_visible: !currentVisible } as any).eq("id", lesson.id);
+    if (error) {
+      toast({ title: "Erro ao alterar visibilidade", description: error.message, variant: "destructive" });
+      return;
+    }
+    toast({ title: currentVisible ? "Aula ocultada" : "Aula visível" });
+    fetchLessons();
+  };
 
   const handleDeleteLesson = async (lessonId: string) => {
     const { error } = await supabase.from("lessons").delete().eq("id", lessonId);
@@ -199,8 +220,10 @@ const ClassroomPage = () => {
                       lesson={lesson}
                       color={color}
                       showDelete
+                      showVisibility
                       onClick={() => navigate(`/turma/${id}/aula/${lesson.id}`)}
                       onDelete={() => handleDeleteLesson(lesson.id)}
+                      onToggleVisibility={() => handleToggleVisibility(lesson)}
                     />
                   ))}
                 </div>
