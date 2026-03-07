@@ -12,6 +12,7 @@ import VideoViewer from "@/components/classroom/VideoViewer";
 import PdfViewer from "@/components/classroom/PdfViewer";
 import PodcastViewer from "@/components/classroom/PodcastViewer";
 import InfographicViewer from "@/components/classroom/InfographicViewer";
+import FlashcardEditor from "@/components/classroom/FlashcardEditor";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -48,7 +49,7 @@ const LessonPage = () => {
   const [activePdf, setActivePdf] = useState<Tables<"contents"> | null>(null);
   const [activePodcast, setActivePodcast] = useState<Tables<"contents"> | null>(null);
   const [activeInfographic, setActiveInfographic] = useState<Tables<"contents"> | null>(null);
-
+  const [flashcardEditorOpen, setFlashcardEditorOpen] = useState(false);
   // Add content form state
   const [step, setStep] = useState<1 | 2>(1);
   const [selectedType, setSelectedType] = useState("");
@@ -171,6 +172,28 @@ const LessonPage = () => {
     fetchContents();
   };
 
+  const handleSaveFlashcards = async (title: string, cards: { question: string; answer: string }[]) => {
+    if (!lessonId) return;
+    setSubmitting(true);
+    const { error } = await supabase.from("contents").insert({
+      lesson_id: lessonId,
+      type: "flashcard",
+      title,
+      data: { cards } as any,
+      order_index: contents.length,
+    });
+    setSubmitting(false);
+    if (error) {
+      toast({ title: "Erro ao adicionar", description: error.message, variant: "destructive" });
+      return;
+    }
+    toast({ title: "Flashcards salvos!" });
+    resetForm();
+    setFlashcardEditorOpen(false);
+    setAddOpen(false);
+    fetchContents();
+  };
+
   const handleDeleteContent = async (contentId: string) => {
     const { error } = await supabase.from("contents").delete().eq("id", contentId);
     if (error) {
@@ -207,7 +230,7 @@ const LessonPage = () => {
 
   const needsFileUpload = selectedType === "pdf" || selectedType === "infographic";
   const needsUrl = selectedType === "video" || selectedType === "podcast";
-  const needsTextarea = ["mindmap", "flashcard", "question", "simulado"].includes(selectedType);
+  const needsTextarea = ["mindmap", "question", "simulado"].includes(selectedType);
 
   return (
     <div className="flex min-h-screen" style={{ background: "#141414" }}>
@@ -329,7 +352,16 @@ const LessonPage = () => {
               {contentTypes.map((ct) => (
                 <button
                   key={ct.type}
-                  onClick={() => { setSelectedType(ct.type); setStep(2); }}
+                  onClick={() => {
+                    if (ct.type === "flashcard") {
+                      setSelectedType("flashcard");
+                      setAddOpen(false);
+                      setFlashcardEditorOpen(true);
+                    } else {
+                      setSelectedType(ct.type);
+                      setStep(2);
+                    }
+                  }}
                   className="flex flex-col items-center gap-2 rounded-lg border p-4 transition-colors hover:border-muted-foreground/50"
                   style={{ background: "#141414", borderColor: "#2a2a2a" }}
                 >
@@ -434,6 +466,17 @@ const LessonPage = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Flashcard Editor */}
+      <FlashcardEditor
+        open={flashcardEditorOpen}
+        onOpenChange={(o) => {
+          setFlashcardEditorOpen(o);
+          if (!o) resetForm();
+        }}
+        onSave={handleSaveFlashcards}
+        submitting={submitting}
+      />
     </div>
   );
 };
