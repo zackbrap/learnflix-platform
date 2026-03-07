@@ -14,6 +14,7 @@ import PodcastViewer from "@/components/classroom/PodcastViewer";
 import InfographicViewer from "@/components/classroom/InfographicViewer";
 import FlashcardEditor from "@/components/classroom/FlashcardEditor";
 import FlashcardViewer from "@/components/classroom/FlashcardViewer";
+import QuestionEditor from "@/components/classroom/QuestionEditor";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -52,6 +53,8 @@ const LessonPage = () => {
   const [activeInfographic, setActiveInfographic] = useState<Tables<"contents"> | null>(null);
   const [flashcardEditorOpen, setFlashcardEditorOpen] = useState(false);
   const [activeFlashcard, setActiveFlashcard] = useState<Tables<"contents"> | null>(null);
+  const [questionEditorOpen, setQuestionEditorOpen] = useState(false);
+  const [questionEditorType, setQuestionEditorType] = useState<"question" | "simulado">("question");
   // Add content form state
   const [step, setStep] = useState<1 | 2>(1);
   const [selectedType, setSelectedType] = useState("");
@@ -192,6 +195,28 @@ const LessonPage = () => {
     toast({ title: "Flashcards salvos!" });
     resetForm();
     setFlashcardEditorOpen(false);
+    setAddOpen(false);
+    fetchContents();
+  };
+
+  const handleSaveQuestions = async (title: string, questions: any[]) => {
+    if (!lessonId) return;
+    setSubmitting(true);
+    const { error } = await supabase.from("contents").insert({
+      lesson_id: lessonId,
+      type: questionEditorType,
+      title,
+      data: { questions } as any,
+      order_index: contents.length,
+    });
+    setSubmitting(false);
+    if (error) {
+      toast({ title: "Erro ao adicionar", description: error.message, variant: "destructive" });
+      return;
+    }
+    toast({ title: "Questões salvas!" });
+    resetForm();
+    setQuestionEditorOpen(false);
     setAddOpen(false);
     fetchContents();
   };
@@ -394,6 +419,11 @@ const LessonPage = () => {
                       setSelectedType("flashcard");
                       setAddOpen(false);
                       setFlashcardEditorOpen(true);
+                    } else if (ct.type === "question" || ct.type === "simulado") {
+                      setSelectedType(ct.type);
+                      setQuestionEditorType(ct.type as "question" | "simulado");
+                      setAddOpen(false);
+                      setQuestionEditorOpen(true);
                     } else {
                       setSelectedType(ct.type);
                       setStep(2);
@@ -513,6 +543,19 @@ const LessonPage = () => {
         }}
         onSave={handleSaveFlashcards}
         submitting={submitting}
+      />
+
+      {/* Question Editor */}
+      <QuestionEditor
+        open={questionEditorOpen}
+        onOpenChange={(o) => {
+          setQuestionEditorOpen(o);
+          if (!o) resetForm();
+        }}
+        onSave={handleSaveQuestions}
+        submitting={submitting}
+        editorTitle={questionEditorType === "simulado" ? "Editor de Simulado" : "Editor de Exercício Interativo"}
+        editorDescription={questionEditorType === "simulado" ? "Crie questões para o simulado." : "Crie questões de revisão interativas."}
       />
     </div>
   );
