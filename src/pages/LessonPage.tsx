@@ -101,6 +101,36 @@ const LessonPage = () => {
     setFile(null);
   };
 
+  const sanitizeFileName = (name: string): string => {
+    return name
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-zA-Z0-9._-]/g, "-")
+      .replace(/-+/g, "-")
+      .replace(/^-|-$/g, "")
+      .toLowerCase();
+  };
+
+  const handleUpload = async (file: File): Promise<string | null> => {
+    const safeName = sanitizeFileName(file.name);
+    const path = `${lessonId}/${Date.now()}-${safeName}`;
+
+    console.log("Uploading to path:", path);
+
+    const { data, error } = await supabase.storage
+      .from("contents")
+      .upload(path, file, { upsert: false });
+    if (error) {
+      console.error("Upload error:", error);
+      toast({ title: "Erro no upload", description: error.message, variant: "destructive" });
+      return null;
+    }
+    const { data: publicData } = supabase.storage
+      .from("contents")
+      .getPublicUrl(data.path);
+    return publicData.publicUrl;
+  };
+
   const handleAddContent = async () => {
     if (!contentTitle.trim() || !lessonId) return;
     setSubmitting(true);
@@ -108,15 +138,11 @@ const LessonPage = () => {
     let finalUrl: string | null = null;
 
     if ((selectedType === "pdf" || selectedType === "infographic") && file) {
-      const path = `${lessonId}/${Date.now()}-${file.name}`;
-      const { error: uploadError } = await supabase.storage.from("contents").upload(path, file);
-      if (uploadError) {
-        toast({ title: "Erro no upload", description: uploadError.message, variant: "destructive" });
+      finalUrl = await handleUpload(file);
+      if (!finalUrl) {
         setSubmitting(false);
         return;
       }
-      const { data: urlData } = supabase.storage.from("contents").getPublicUrl(path);
-      finalUrl = urlData.publicUrl;
     } else if (selectedType === "video" || selectedType === "podcast") {
       finalUrl = contentUrl || null;
     }
