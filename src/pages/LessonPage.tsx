@@ -426,9 +426,6 @@ const LessonPage = () => {
             <audio controls src={viewContent.url} className="w-full" />
           )}
 
-          {viewContent?.type === "infographic" && viewContent.url && (
-            <img src={viewContent.url} alt={viewContent.title} className="w-full rounded-lg" />
-          )}
 
           {["mindmap", "flashcard", "question", "simulado"].includes(viewContent?.type || "") && (
             <div className="rounded-lg border px-4 py-8 text-center" style={{ background: "#141414", borderColor: "#2a2a2a" }}>
