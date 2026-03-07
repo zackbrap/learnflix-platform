@@ -49,7 +49,7 @@ const LessonPage = () => {
   const [activePdf, setActivePdf] = useState<Tables<"contents"> | null>(null);
   const [activePodcast, setActivePodcast] = useState<Tables<"contents"> | null>(null);
   const [activeInfographic, setActiveInfographic] = useState<Tables<"contents"> | null>(null);
-
+  const [flashcardEditorOpen, setFlashcardEditorOpen] = useState(false);
   // Add content form state
   const [step, setStep] = useState<1 | 2>(1);
   const [selectedType, setSelectedType] = useState("");
