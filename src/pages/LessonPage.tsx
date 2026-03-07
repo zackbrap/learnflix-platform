@@ -12,6 +12,7 @@ import VideoViewer from "@/components/classroom/VideoViewer";
 import PdfViewer from "@/components/classroom/PdfViewer";
 import PodcastViewer from "@/components/classroom/PodcastViewer";
 import InfographicViewer from "@/components/classroom/InfographicViewer";
+import FlashcardEditor from "@/components/classroom/FlashcardEditor";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
