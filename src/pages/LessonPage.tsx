@@ -344,6 +344,12 @@ const LessonPage = () => {
               content={activeFlashcard}
               onBack={() => setActiveFlashcard(null)}
             />
+          ) : activeMindMap ? (
+            <MindMapViewer
+              content={activeMindMap}
+              onBack={() => setActiveMindMap(null)}
+              isTeacher={isTeacher}
+            />
           ) : activeQuestion ? (
             <QuestionViewer
               content={activeQuestion}
