@@ -202,7 +202,7 @@ const LessonPage = () => {
     fetchContents();
   };
 
-  const handleSaveQuestions = async (title: string, questions: any[]) => {
+  const handleSaveQuestions = async (title: string, questions: any[], scheduledAt: string | null) => {
     if (!lessonId) return;
     setSubmitting(true);
     const { error } = await supabase.from("contents").insert({
@@ -211,6 +211,7 @@ const LessonPage = () => {
       title,
       data: { questions } as any,
       order_index: contents.length,
+      scheduled_at: scheduledAt,
     });
     setSubmitting(false);
     if (error) {
@@ -275,8 +276,16 @@ const LessonPage = () => {
     return d.toLocaleDateString("pt-BR");
   };
 
+  // Filter contents: for students, hide scheduled content that isn't released yet
+  const visibleContents = isTeacher
+    ? contents
+    : contents.filter((c) => {
+        if (!c.scheduled_at) return true;
+        return new Date(c.scheduled_at) <= new Date();
+      });
+
   // Group contents by type
-  const grouped = contents.reduce<Record<string, Tables<"contents">[]>>((acc, c) => {
+  const grouped = visibleContents.reduce<Record<string, Tables<"contents">[]>>((acc, c) => {
     if (!acc[c.type]) acc[c.type] = [];
     acc[c.type].push(c);
     return acc;
@@ -368,7 +377,7 @@ const LessonPage = () => {
               </div>
 
               {/* Content sections */}
-              {contents.length === 0 ? (
+              {visibleContents.length === 0 ? (
                 <div
                   className="rounded-lg border px-4 py-8 text-center"
                   style={{ background: "#1a1a1a", borderColor: "#2a2a2a" }}
