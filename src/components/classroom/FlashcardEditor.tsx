@@ -20,7 +20,7 @@ interface FlashcardItem {
 interface FlashcardEditorProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSave: (cards: FlashcardItem[]) => void;
+  onSave: (title: string, cards: FlashcardItem[]) => void;
   initialCards?: FlashcardItem[];
   submitting?: boolean;
 }
@@ -33,6 +33,7 @@ const FlashcardEditor = ({
   submitting = false,
 }: FlashcardEditorProps) => {
   const [cards, setCards] = useState<FlashcardItem[]>(initialCards);
+  const [title, setTitle] = useState("");
   const [importOpen, setImportOpen] = useState(false);
   const [importText, setImportText] = useState("");
 
@@ -79,12 +80,16 @@ const FlashcardEditor = ({
   };
 
   const handleSave = () => {
+    if (!title.trim()) {
+      toast({ title: "Informe o título dos flashcards", variant: "destructive" });
+      return;
+    }
     const valid = cards.filter((c) => c.question.trim() && c.answer.trim());
     if (valid.length === 0) {
       toast({ title: "Adicione pelo menos um card completo", variant: "destructive" });
       return;
     }
-    onSave(valid);
+    onSave(title.trim(), valid);
   };
 
   return (
@@ -99,7 +104,15 @@ const FlashcardEditor = ({
         </DialogHeader>
 
         <div className="flex-1 overflow-y-auto space-y-3 min-h-0 py-2">
-          {cards.length === 0 ? (
+          <div className="space-y-1.5">
+            <Label className="text-xs text-muted-foreground">Título *</Label>
+            <Input
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Ex: Flashcards de Biologia"
+              className="border-border/60 bg-background text-sm"
+            />
+          </div>
             <div
               className="rounded-lg border px-4 py-8 text-center"
               style={{ background: "#141414", borderColor: "#2a2a2a" }}
