@@ -106,14 +106,21 @@ const JoinClass = () => {
 
         {status === "not-logged" && (
           <>
-            <p className="text-muted-foreground mb-4">
-              Faça login para entrar na turma
+            <p className="text-muted-foreground mb-6">
+              Para entrar na turma, faça login ou crie sua conta
             </p>
             <button
               onClick={() => navigate(`/auth?redirect=/convite/${code}`)}
-              className="w-full rounded-lg bg-primary py-3 font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+              className="w-full rounded-lg bg-primary py-3 font-semibold text-primary-foreground transition-colors hover:bg-primary/90 mb-3"
             >
               Fazer login
+            </button>
+            <button
+              onClick={() => navigate(`/auth?mode=register&redirect=/convite/${code}`)}
+              className="w-full rounded-lg border py-3 font-semibold text-foreground transition-colors hover:bg-secondary"
+              style={{ borderColor: "#2a2a2a" }}
+            >
+              Criar conta gratuita
             </button>
           </>
         )}
