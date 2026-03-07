@@ -13,6 +13,7 @@ import PdfViewer from "@/components/classroom/PdfViewer";
 import PodcastViewer from "@/components/classroom/PodcastViewer";
 import InfographicViewer from "@/components/classroom/InfographicViewer";
 import FlashcardEditor from "@/components/classroom/FlashcardEditor";
+import FlashcardViewer from "@/components/classroom/FlashcardViewer";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -50,6 +51,7 @@ const LessonPage = () => {
   const [activePodcast, setActivePodcast] = useState<Tables<"contents"> | null>(null);
   const [activeInfographic, setActiveInfographic] = useState<Tables<"contents"> | null>(null);
   const [flashcardEditorOpen, setFlashcardEditorOpen] = useState(false);
+  const [activeFlashcard, setActiveFlashcard] = useState<Tables<"contents"> | null>(null);
   // Add content form state
   const [step, setStep] = useState<1 | 2>(1);
   const [selectedType, setSelectedType] = useState("");
@@ -258,8 +260,12 @@ const LessonPage = () => {
               content={activeInfographic}
               onBack={() => setActiveInfographic(null)}
             />
+          ) : activeFlashcard ? (
+            <FlashcardViewer
+              content={activeFlashcard}
+              onBack={() => setActiveFlashcard(null)}
+            />
           ) : (
-            <>
               <button
                 onClick={() => navigate(`/turma/${id}`)}
                 className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
@@ -311,7 +317,7 @@ const LessonPage = () => {
                         {items.map((item) => (
                           <div
                             key={item.id}
-                            onClick={() => item.type === "video" ? setActiveVideo(item) : item.type === "pdf" ? setActivePdf(item) : item.type === "podcast" ? setActivePodcast(item) : item.type === "infographic" ? setActiveInfographic(item) : setViewContent(item)}
+                            onClick={() => item.type === "video" ? setActiveVideo(item) : item.type === "pdf" ? setActivePdf(item) : item.type === "podcast" ? setActivePodcast(item) : item.type === "infographic" ? setActiveInfographic(item) : item.type === "flashcard" ? setActiveFlashcard(item) : setViewContent(item)}
                             className="flex items-center gap-3 rounded-lg border px-4 py-3 cursor-pointer transition-colors hover:border-muted-foreground/30"
                             style={{ background: "#1a1a1a", borderColor: "#2a2a2a" }}
                           >
