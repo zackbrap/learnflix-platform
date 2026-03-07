@@ -213,79 +213,87 @@ const LessonPage = () => {
       <main className="flex-1 overflow-y-auto">
         <div className="h-1 w-full" style={{ background: classroomColor }} />
         <div className="p-6 md:p-8 max-w-5xl mx-auto space-y-8">
-          <button
-            onClick={() => navigate(`/turma/${id}`)}
-            className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Voltar para a turma
-          </button>
-
-          {/* Header */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <h1 className="font-display text-[2rem] leading-tight tracking-wide text-foreground">
-                {lesson?.title}
-              </h1>
-              {isTeacher && (
-                <button
-                  onClick={() => { resetForm(); setAddOpen(true); }}
-                  className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:opacity-90"
-                  style={{ background: "#e50914" }}
-                >
-                  <Plus className="h-3.5 w-3.5" /> Adicionar Conteúdo
-                </button>
-              )}
-            </div>
-            {lesson?.lesson_date && (
-              <p className="text-sm text-muted-foreground">{formatDate(lesson.lesson_date)}</p>
-            )}
-            {lesson?.description && (
-              <p className="text-sm text-muted-foreground max-w-xl">{lesson.description}</p>
-            )}
-          </div>
-
-          {/* Content sections */}
-          {contents.length === 0 ? (
-            <div
-              className="rounded-lg border px-4 py-8 text-center"
-              style={{ background: "#1a1a1a", borderColor: "#2a2a2a" }}
-            >
-              <p className="text-xs text-muted-foreground">Nenhum conteúdo adicionado ainda</p>
-            </div>
+          {activeVideo ? (
+            <VideoViewer
+              content={activeVideo}
+              onBack={() => setActiveVideo(null)}
+            />
           ) : (
-            <div className="space-y-6">
-              {Object.entries(grouped).map(([type, items]) => (
-                <div key={type}>
-                  <h2 className="text-sm font-semibold text-foreground mb-2 flex items-center gap-2">
-                    <span>{typeLabels[type]?.icon || "📎"}</span> {typeLabels[type]?.label || type}
-                  </h2>
-                  <div className="space-y-2">
-                    {items.map((item) => (
-                      <div
-                        key={item.id}
-                        onClick={() => item.type === "video" ? setActiveVideo(item) : setViewContent(item)}
-                        className="flex items-center gap-3 rounded-lg border px-4 py-3 cursor-pointer transition-colors hover:border-muted-foreground/30"
-                        style={{ background: "#1a1a1a", borderColor: "#2a2a2a" }}
-                      >
-                        <span>{typeLabels[item.type]?.icon || "📎"}</span>
-                        <p className="text-sm font-medium text-foreground flex-1 truncate">{item.title}</p>
-                        {isTeacher && (
-                          <button
-                            onClick={(e) => { e.stopPropagation(); handleDeleteContent(item.id); }}
-                            className="text-muted-foreground hover:text-red-500 transition-colors p-1"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        )}
-                      </div>
-                    ))}
-                  </div>
+            <>
+              <button
+                onClick={() => navigate(`/turma/${id}`)}
+                className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Voltar para a turma
+              </button>
+
+              {/* Header */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <h1 className="font-display text-[2rem] leading-tight tracking-wide text-foreground">
+                    {lesson?.title}
+                  </h1>
+                  {isTeacher && (
+                    <button
+                      onClick={() => { resetForm(); setAddOpen(true); }}
+                      className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:opacity-90"
+                      style={{ background: "#e50914" }}
+                    >
+                      <Plus className="h-3.5 w-3.5" /> Adicionar Conteúdo
+                    </button>
+                  )}
                 </div>
-              ))}
-            </div>
+                {lesson?.lesson_date && (
+                  <p className="text-sm text-muted-foreground">{formatDate(lesson.lesson_date)}</p>
+                )}
+                {lesson?.description && (
+                  <p className="text-sm text-muted-foreground max-w-xl">{lesson.description}</p>
+                )}
+              </div>
+
+              {/* Content sections */}
+              {contents.length === 0 ? (
+                <div
+                  className="rounded-lg border px-4 py-8 text-center"
+                  style={{ background: "#1a1a1a", borderColor: "#2a2a2a" }}
+                >
+                  <p className="text-xs text-muted-foreground">Nenhum conteúdo adicionado ainda</p>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {Object.entries(grouped).map(([type, items]) => (
+                    <div key={type}>
+                      <h2 className="text-sm font-semibold text-foreground mb-2 flex items-center gap-2">
+                        <span>{typeLabels[type]?.icon || "📎"}</span> {typeLabels[type]?.label || type}
+                      </h2>
+                      <div className="space-y-2">
+                        {items.map((item) => (
+                          <div
+                            key={item.id}
+                            onClick={() => item.type === "video" ? setActiveVideo(item) : setViewContent(item)}
+                            className="flex items-center gap-3 rounded-lg border px-4 py-3 cursor-pointer transition-colors hover:border-muted-foreground/30"
+                            style={{ background: "#1a1a1a", borderColor: "#2a2a2a" }}
+                          >
+                            <span>{typeLabels[item.type]?.icon || "📎"}</span>
+                            <p className="text-sm font-medium text-foreground flex-1 truncate">{item.title}</p>
+                            {isTeacher && (
+                              <button
+                                onClick={(e) => { e.stopPropagation(); handleDeleteContent(item.id); }}
+                                className="text-muted-foreground hover:text-red-500 transition-colors p-1"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </button>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
           )}
-        </div>
       </main>
 
       {/* Add Content Dialog */}
