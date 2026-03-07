@@ -172,8 +172,8 @@ const LessonPage = () => {
     fetchContents();
   };
 
-  const handleSaveFlashcards = async (cards: { question: string; answer: string }[]) => {
-    if (!contentTitle.trim() || !lessonId) return;
+  const handleSaveFlashcards = async (title: string, cards: { question: string; answer: string }[]) => {
+    if (!lessonId) return;
     setSubmitting(true);
     const { error } = await supabase.from("contents").insert({
       lesson_id: lessonId,
