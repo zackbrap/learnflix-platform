@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { ArrowLeft, ExternalLink, Download, Save, Flag } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { ArrowLeft, Maximize, Download, Save, Flag } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
