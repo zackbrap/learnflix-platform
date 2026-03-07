@@ -200,6 +200,42 @@ const QuestionEditor = ({
             />
           </div>
 
+          {/* Schedule */}
+          {showSchedule && (
+            <div className="space-y-2 rounded-lg border p-3" style={{ background: "#141414", borderColor: "#2a2a2a" }}>
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={useSchedule}
+                  onChange={(e) => setUseSchedule(e.target.checked)}
+                  className="accent-primary"
+                />
+                <Label className="text-xs text-foreground cursor-pointer" onClick={() => setUseSchedule(!useSchedule)}>
+                  📅 Agendar liberação
+                </Label>
+              </div>
+              {useSchedule && (
+                <div className="flex gap-2 mt-1">
+                  <Input
+                    type="date"
+                    value={scheduleDate}
+                    onChange={(e) => setScheduleDate(e.target.value)}
+                    className="border-border/60 bg-background text-sm flex-1"
+                  />
+                  <Input
+                    type="time"
+                    value={scheduleTime}
+                    onChange={(e) => setScheduleTime(e.target.value)}
+                    className="border-border/60 bg-background text-sm w-32"
+                  />
+                </div>
+              )}
+              <p className="text-[10px] text-muted-foreground">
+                {useSchedule ? "O conteúdo ficará visível permanentemente a partir da data/hora agendada." : "Sem agendamento — ficará visível imediatamente."}
+              </p>
+            </div>
+          )}
+
           {/* Import section */}
           <div
             onClick={() => setImportOpen(!importOpen)}
