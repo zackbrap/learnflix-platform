@@ -205,12 +205,12 @@ const QuestionEditor = ({
               style={{ background: "#141414", borderColor: "#2a2a2a" }}
             >
               <Label className="text-xs text-muted-foreground">
-                Cole as questões (enunciado + alternativas A) B) C) D), separadas por linha em branco)
+                Cole as questões (enunciado + alternativas A) B) C) D), separadas por linha em branco). Marque a correta com <span className="font-semibold text-emerald-400">*</span> no início da linha.
               </Label>
               <Textarea
                 value={importText}
                 onChange={(e) => setImportText(e.target.value)}
-                placeholder={"Qual a capital do Brasil?\nA) São Paulo\nB) Rio de Janeiro\nC) Brasília\nD) Salvador\n\nQuem descobriu o Brasil?\nA) Cabral\nB) Colombo\nC) Vespúcio\nD) Magalhães"}
+                placeholder={"Qual a capital do Brasil?\nA) São Paulo\nB) Rio de Janeiro\n*C) Brasília\nD) Salvador\n\nQuem descobriu o Brasil?\n*A) Cabral\nB) Colombo\nC) Vespúcio\nD) Magalhães"}
                 className="border-border/60 bg-background text-sm min-h-[100px]"
               />
               <div className="flex gap-2">
