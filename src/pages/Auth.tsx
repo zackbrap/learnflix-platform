@@ -80,7 +80,7 @@ const Auth = () => {
           <div className="flex items-center justify-center gap-2 mb-2">
             <PlayCircle className="h-8 w-8 text-primary" />
             <h1 className="font-display text-4xl tracking-wider text-primary">
-              LEARNFLIX
+              MYZION
             </h1>
           </div>
           <p className="text-center text-muted-foreground mb-8">

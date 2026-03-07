@@ -9,7 +9,7 @@ const ComingSoon = () => {
     <div className="flex min-h-screen flex-col items-center justify-center" style={{ background: "#141414" }}>
       <div className="flex items-center gap-2 mb-8">
         <PlayCircle className="h-6 w-6 text-primary" />
-        <span className="font-display text-2xl tracking-wider text-primary">LEARNFLIX</span>
+        <span className="font-display text-2xl tracking-wider text-primary">MYZION</span>
       </div>
       <span className="text-6xl mb-4">🚧</span>
       <h1 className="font-display text-[2rem] tracking-wide text-foreground mb-2">Em breve</h1>

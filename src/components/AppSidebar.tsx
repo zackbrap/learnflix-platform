@@ -59,7 +59,7 @@ const AppSidebar = ({ variant }: AppSidebarProps) => {
       {/* Logo */}
       <div className="flex items-center gap-2 px-5 py-6">
         <PlayCircle className="h-6 w-6 text-primary" />
-        <span className="font-display text-2xl tracking-wider text-primary">LEARNFLIX</span>
+        <span className="font-display text-2xl tracking-wider text-primary">MYZION</span>
       </div>
 
       {/* Nav */}
