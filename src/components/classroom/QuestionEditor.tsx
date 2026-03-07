@@ -27,10 +27,11 @@ interface QuestionItem {
 interface QuestionEditorProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSave: (title: string, questions: QuestionItem[]) => void;
+  onSave: (title: string, questions: QuestionItem[], scheduledAt: string | null) => void;
   submitting?: boolean;
   editorTitle: string;
   editorDescription: string;
+  showSchedule?: boolean;
 }
 
 const LABELS = ["A", "B", "C", "D", "E"];
@@ -54,11 +55,15 @@ const QuestionEditor = ({
   submitting = false,
   editorTitle,
   editorDescription,
+  showSchedule = false,
 }: QuestionEditorProps) => {
   const [questions, setQuestions] = useState<QuestionItem[]>([]);
   const [title, setTitle] = useState("");
   const [importOpen, setImportOpen] = useState(false);
   const [importText, setImportText] = useState("");
+  const [useSchedule, setUseSchedule] = useState(false);
+  const [scheduleDate, setScheduleDate] = useState("");
+  const [scheduleTime, setScheduleTime] = useState("");
 
   const addQuestion = () => {
     setQuestions([...questions, createEmptyQuestion()]);
@@ -165,7 +170,11 @@ const QuestionEditor = ({
       toast({ title: "Adicione pelo menos uma questão completa", variant: "destructive" });
       return;
     }
-    onSave(title.trim(), valid);
+    let scheduledAt: string | null = null;
+    if (showSchedule && useSchedule && scheduleDate && scheduleTime) {
+      scheduledAt = new Date(`${scheduleDate}T${scheduleTime}`).toISOString();
+    }
+    onSave(title.trim(), valid, scheduledAt);
   };
 
   return (
@@ -190,6 +199,42 @@ const QuestionEditor = ({
               className="border-border/60 bg-background text-sm"
             />
           </div>
+
+          {/* Schedule */}
+          {showSchedule && (
+            <div className="space-y-2 rounded-lg border p-3" style={{ background: "#141414", borderColor: "#2a2a2a" }}>
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={useSchedule}
+                  onChange={(e) => setUseSchedule(e.target.checked)}
+                  className="accent-primary"
+                />
+                <Label className="text-xs text-foreground cursor-pointer" onClick={() => setUseSchedule(!useSchedule)}>
+                  📅 Agendar liberação
+                </Label>
+              </div>
+              {useSchedule && (
+                <div className="flex gap-2 mt-1">
+                  <Input
+                    type="date"
+                    value={scheduleDate}
+                    onChange={(e) => setScheduleDate(e.target.value)}
+                    className="border-border/60 bg-background text-sm flex-1"
+                  />
+                  <Input
+                    type="time"
+                    value={scheduleTime}
+                    onChange={(e) => setScheduleTime(e.target.value)}
+                    className="border-border/60 bg-background text-sm w-32"
+                  />
+                </div>
+              )}
+              <p className="text-[10px] text-muted-foreground">
+                {useSchedule ? "O conteúdo ficará visível permanentemente a partir da data/hora agendada." : "Sem agendamento — ficará visível imediatamente."}
+              </p>
+            </div>
+          )}
 
           {/* Import section */}
           <div
