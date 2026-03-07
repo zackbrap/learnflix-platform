@@ -9,6 +9,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
 } from "@/components/ui/dialog";
 import VideoViewer from "@/components/classroom/VideoViewer";
+import PdfViewer from "@/components/classroom/PdfViewer";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -42,6 +43,7 @@ const LessonPage = () => {
   const [addOpen, setAddOpen] = useState(false);
   const [viewContent, setViewContent] = useState<Tables<"contents"> | null>(null);
   const [activeVideo, setActiveVideo] = useState<Tables<"contents"> | null>(null);
+  const [activePdf, setActivePdf] = useState<Tables<"contents"> | null>(null);
 
   // Add content form state
   const [step, setStep] = useState<1 | 2>(1);
@@ -214,6 +216,11 @@ const LessonPage = () => {
               content={activeVideo}
               onBack={() => setActiveVideo(null)}
             />
+          ) : activePdf ? (
+            <PdfViewer
+              content={activePdf}
+              onBack={() => setActivePdf(null)}
+            />
           ) : (
             <>
               <button
@@ -267,7 +274,7 @@ const LessonPage = () => {
                         {items.map((item) => (
                           <div
                             key={item.id}
-                            onClick={() => item.type === "video" ? setActiveVideo(item) : setViewContent(item)}
+                            onClick={() => item.type === "video" ? setActiveVideo(item) : item.type === "pdf" ? setActivePdf(item) : setViewContent(item)}
                             className="flex items-center gap-3 rounded-lg border px-4 py-3 cursor-pointer transition-colors hover:border-muted-foreground/30"
                             style={{ background: "#1a1a1a", borderColor: "#2a2a2a" }}
                           >
@@ -399,35 +406,6 @@ const LessonPage = () => {
             <DialogDescription>{typeLabels[viewContent?.type || ""]?.label || ""}</DialogDescription>
           </DialogHeader>
 
-          {viewContent?.type === "pdf" && viewContent.url && (
-            <div className="space-y-3">
-              <div style={{ width: "100%", height: "600px" }}>
-                <iframe
-                  src={`https://mozilla.github.io/pdf.js/web/viewer.html?file=${encodeURIComponent(viewContent.url)}`}
-                  width="100%"
-                  height="600px"
-                  style={{ border: "none", borderRadius: "8px" }}
-                  title="PDF Viewer"
-                />
-              </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => window.open(viewContent.url!, '_blank')}
-                  className="rounded-lg border border-border px-4 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  Abrir em nova aba
-                </button>
-                <a
-                  href={viewContent.url}
-                  download
-                  className="rounded-lg px-4 py-2 text-sm font-semibold text-white transition-colors hover:opacity-90"
-                  style={{ background: "#e50914" }}
-                >
-                  Download
-                </a>
-              </div>
-            </div>
-          )}
 
 
           {viewContent?.type === "podcast" && viewContent.url && (
