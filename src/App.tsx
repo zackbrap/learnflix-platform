@@ -10,6 +10,7 @@ import Dashboard from "./pages/Dashboard";
 import Aluno from "./pages/Aluno";
 import JoinClass from "./pages/JoinClass";
 import ClassroomPage from "./pages/ClassroomPage";
+import ComingSoon from "./pages/ComingSoon";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
