@@ -392,25 +392,42 @@ const LessonPage = () => {
                         <span>{typeLabels[type]?.icon || "📎"}</span> {typeLabels[type]?.label || type}
                       </h2>
                       <div className="space-y-2">
-                        {items.map((item) => (
-                          <div
-                            key={item.id}
-                            onClick={() => handleOpenContent(item)}
-                            className="flex items-center gap-3 rounded-lg border px-4 py-3 cursor-pointer transition-colors hover:border-muted-foreground/30"
-                            style={{ background: "#1a1a1a", borderColor: "#2a2a2a" }}
-                          >
-                            <span>{typeLabels[item.type]?.icon || "📎"}</span>
-                            <p className="text-sm font-medium text-foreground flex-1 truncate">{item.title}</p>
-                            {isTeacher && (
-                              <button
-                                onClick={(e) => { e.stopPropagation(); handleDeleteContent(item.id); }}
-                                className="text-muted-foreground hover:text-red-500 transition-colors p-1"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </button>
-                            )}
-                          </div>
-                        ))}
+                        {items.map((item) => {
+                          const isScheduled = !!item.scheduled_at;
+                          const isReleased = isScheduled && new Date(item.scheduled_at!) <= new Date();
+                          const scheduleLabel = isScheduled
+                            ? isReleased
+                              ? "✅ Liberado"
+                              : `📅 ${new Date(item.scheduled_at!).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" })}`
+                            : null;
+
+                          return (
+                            <div
+                              key={item.id}
+                              onClick={() => handleOpenContent(item)}
+                              className="flex items-center gap-3 rounded-lg border px-4 py-3 cursor-pointer transition-colors hover:border-muted-foreground/30"
+                              style={{ background: "#1a1a1a", borderColor: "#2a2a2a" }}
+                            >
+                              <span>{typeLabels[item.type]?.icon || "📎"}</span>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium text-foreground truncate">{item.title}</p>
+                                {isTeacher && scheduleLabel && (
+                                  <p className={`text-[10px] mt-0.5 ${isReleased ? "text-emerald-400" : "text-amber-400"}`}>
+                                    {scheduleLabel}
+                                  </p>
+                                )}
+                              </div>
+                              {isTeacher && (
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); handleDeleteContent(item.id); }}
+                                  className="text-muted-foreground hover:text-red-500 transition-colors p-1"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </button>
+                              )}
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
                   ))}
@@ -578,6 +595,7 @@ const LessonPage = () => {
         submitting={submitting}
         editorTitle={questionEditorType === "simulado" ? "Editor de Simulados" : questionEditorType === "revisao" ? "Editor de Revisões" : "Editor de Questões Interativas"}
         editorDescription={questionEditorType === "simulado" ? "Crie questões para o simulado." : questionEditorType === "revisao" ? "Crie questões de revisão para os alunos." : "Crie questões interativas para a aula."}
+        showSchedule={questionEditorType === "simulado" || questionEditorType === "revisao"}
       />
     </div>
   );
