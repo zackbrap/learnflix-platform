@@ -266,6 +266,7 @@ const LessonPage = () => {
               onBack={() => setActiveFlashcard(null)}
             />
           ) : (
+            <>
               <button
                 onClick={() => navigate(`/turma/${id}`)}
                 className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
