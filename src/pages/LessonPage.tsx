@@ -45,6 +45,7 @@ const LessonPage = () => {
   const [contents, setContents] = useState<Tables<"contents">[]>([]);
   const [addOpen, setAddOpen] = useState(false);
   const [viewContent, setViewContent] = useState<Tables<"contents"> | null>(null);
+  const [activeVideo, setActiveVideo] = useState<Tables<"contents"> | null>(null);
 
   // Add content form state
   const [step, setStep] = useState<1 | 2>(1);
