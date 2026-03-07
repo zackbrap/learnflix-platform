@@ -159,7 +159,7 @@ const FlashcardEditor = ({
                 </div>
               </div>
             ))
-          )
+          }
 
           {/* Import section */}
           {importOpen && (
