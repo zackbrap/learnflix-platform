@@ -96,7 +96,7 @@ const JoinClass = () => {
         <div className="flex items-center justify-center gap-2 mb-6">
           <PlayCircle className="h-8 w-8 text-primary" />
           <span className="font-display text-3xl tracking-wider text-primary">
-            LEARNFLIX
+            MYZION
           </span>
         </div>
 
