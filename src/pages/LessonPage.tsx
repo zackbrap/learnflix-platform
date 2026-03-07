@@ -216,6 +216,11 @@ const LessonPage = () => {
               content={activeVideo}
               onBack={() => setActiveVideo(null)}
             />
+          ) : activePdf ? (
+            <PdfViewer
+              content={activePdf}
+              onBack={() => setActivePdf(null)}
+            />
           ) : (
             <>
               <button
