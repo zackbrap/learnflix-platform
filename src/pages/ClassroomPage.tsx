@@ -57,14 +57,18 @@ const ClassroomPage = () => {
   const fetchLessons = useCallback(async () => {
     if (!id) return;
     setLessonsLoading(true);
-    const { data } = await supabase
+    let query = supabase
       .from("lessons")
       .select("*")
       .eq("classroom_id", id)
       .order("lesson_date", { ascending: true });
+    if (!isTeacher) {
+      query = query.eq("is_visible" as any, true);
+    }
+    const { data } = await query;
     setLessons(data ?? []);
     setLessonsLoading(false);
-  }, [id]);
+  }, [id, isTeacher]);
 
   useEffect(() => {
     if (!id) return;
