@@ -12,7 +12,9 @@ import Aluno from "./pages/Aluno";
 import JoinClass from "./pages/JoinClass";
 import ClassroomPage from "./pages/ClassroomPage";
 import LessonPage from "./pages/LessonPage";
-import ComingSoon from "./pages/ComingSoon";
+import Estatisticas from "./pages/Estatisticas";
+import Social from "./pages/Social";
+import Configuracoes from "./pages/Configuracoes";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -67,9 +69,9 @@ const App = () => (
                 <LessonPage />
               </ProtectedRoute>
             } />
-            <Route path="/estatisticas" element={<ProtectedRoute><ComingSoon /></ProtectedRoute>} />
-            <Route path="/social" element={<ProtectedRoute><ComingSoon /></ProtectedRoute>} />
-            <Route path="/config" element={<ProtectedRoute><ComingSoon /></ProtectedRoute>} />
+            <Route path="/estatisticas" element={<ProtectedRoute><Estatisticas /></ProtectedRoute>} />
+            <Route path="/social" element={<ProtectedRoute><Social /></ProtectedRoute>} />
+            <Route path="/config" element={<ProtectedRoute><Configuracoes /></ProtectedRoute>} />
             <Route path="/convite/:code" element={<JoinClass />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
