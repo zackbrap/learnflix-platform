@@ -28,7 +28,8 @@ const contentTypes = [
   { type: "infographic", icon: "🖼️", label: "Infográfico" },
   { type: "flashcard", icon: "🃏", label: "Flashcard" },
   { type: "question", icon: "📝", label: "Questões Interativas" },
-  { type: "simulado", icon: "📋", label: "Revisões" },
+  { type: "revisao", icon: "📖", label: "Revisões" },
+  { type: "simulado", icon: "📋", label: "Simulados" },
 ];
 
 const typeLabels: Record<string, { icon: string; label: string }> = {};
@@ -54,7 +55,7 @@ const LessonPage = () => {
   const [flashcardEditorOpen, setFlashcardEditorOpen] = useState(false);
   const [activeFlashcard, setActiveFlashcard] = useState<Tables<"contents"> | null>(null);
   const [questionEditorOpen, setQuestionEditorOpen] = useState(false);
-  const [questionEditorType, setQuestionEditorType] = useState<"question" | "simulado">("question");
+  const [questionEditorType, setQuestionEditorType] = useState<"question" | "simulado" | "revisao">("question");
   // Add content form state
   const [step, setStep] = useState<1 | 2>(1);
   const [selectedType, setSelectedType] = useState("");
@@ -419,9 +420,9 @@ const LessonPage = () => {
                       setSelectedType("flashcard");
                       setAddOpen(false);
                       setFlashcardEditorOpen(true);
-                    } else if (ct.type === "question" || ct.type === "simulado") {
+                    } else if (ct.type === "question" || ct.type === "simulado" || ct.type === "revisao") {
                       setSelectedType(ct.type);
-                      setQuestionEditorType(ct.type as "question" | "simulado");
+                      setQuestionEditorType(ct.type as "question" | "simulado" | "revisao");
                       setAddOpen(false);
                       setQuestionEditorOpen(true);
                     } else {
@@ -526,7 +527,7 @@ const LessonPage = () => {
           )}
 
 
-          {["mindmap", "question", "simulado"].includes(viewContent?.type || "") && (
+          {["mindmap", "question", "simulado", "revisao"].includes(viewContent?.type || "") && (
             <div className="rounded-lg border px-4 py-8 text-center" style={{ background: "#141414", borderColor: "#2a2a2a" }}>
               <p className="text-sm text-muted-foreground">Em breve</p>
             </div>
@@ -554,8 +555,8 @@ const LessonPage = () => {
         }}
         onSave={handleSaveQuestions}
         submitting={submitting}
-        editorTitle={questionEditorType === "simulado" ? "Editor de Revisões" : "Editor de Questões Interativas"}
-        editorDescription={questionEditorType === "simulado" ? "Crie questões de revisão para os alunos." : "Crie questões interativas para a aula."}
+        editorTitle={questionEditorType === "simulado" ? "Editor de Simulados" : questionEditorType === "revisao" ? "Editor de Revisões" : "Editor de Questões Interativas"}
+        editorDescription={questionEditorType === "simulado" ? "Crie questões para o simulado." : questionEditorType === "revisao" ? "Crie questões de revisão para os alunos." : "Crie questões interativas para a aula."}
       />
     </div>
   );
