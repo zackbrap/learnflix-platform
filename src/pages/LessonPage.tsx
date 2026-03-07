@@ -178,7 +178,7 @@ const LessonPage = () => {
     const { error } = await supabase.from("contents").insert({
       lesson_id: lessonId,
       type: "flashcard",
-      title: contentTitle.trim(),
+      title,
       data: { cards } as any,
       order_index: contents.length,
     });
