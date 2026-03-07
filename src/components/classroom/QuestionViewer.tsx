@@ -20,7 +20,7 @@ interface QuestionViewerProps {
 }
 
 const QuestionViewer = ({ content, onBack }: QuestionViewerProps) => {
-  const data = content.data as { questions: QuestionItem[] } | null;
+  const data = content.data as unknown as { questions: QuestionItem[] } | null;
   const questions = data?.questions ?? [];
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
