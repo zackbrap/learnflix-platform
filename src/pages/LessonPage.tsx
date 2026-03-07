@@ -433,23 +433,6 @@ const LessonPage = () => {
             </div>
           )}
 
-          {viewContent?.type === "video" && viewContent.url && (() => {
-            const ytId = extractYouTubeId(viewContent.url!);
-            return ytId ? (
-              <iframe
-                src={`https://www.youtube.com/embed/${ytId}`}
-                width="100%"
-                height="400"
-                className="rounded-lg"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
-            ) : (
-              <a href={viewContent.url!} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-400 underline">
-                Abrir vídeo
-              </a>
-            );
-          })()}
 
           {viewContent?.type === "podcast" && viewContent.url && (
             <audio controls src={viewContent.url} className="w-full" />
